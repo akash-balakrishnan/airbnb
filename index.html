@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airbnb</title>
@@ -268,7 +269,20 @@
         .scroll-arrow.left { margin-right: 15px; }
         .scroll-arrow.right { margin-left: 15px; }
         .category-filter-wrapper { flex-grow: 1; overflow: hidden; }
-        .category-filter { display: flex; gap: 30px; padding-bottom: 10px; width: max-content; }
+        .category-filter { /* Your #category-filter-items element */
+            display: flex;
+            gap: 30px;
+            padding-bottom: 10px;
+            width: max-content;
+            overflow-x: auto; /* <<< ADD THIS LINE */
+
+            /* --- Add these rules to hide the scrollbar --- */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        }
+        .category-filter::-webkit-scrollbar {
+            display: none;
+        }
         .category-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding-bottom: 10px; border-bottom: 2px solid transparent; color: #717171; white-space: nowrap; transition: color 0.2s ease, border-bottom-color 0.2s ease, opacity 0.2s ease; opacity: 0.7; }
         .category-item svg {
             width: 24px;
@@ -311,6 +325,436 @@
         .toggle-switch.on::after { left: 18px; transform: translateX(0); }
 
 
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Dim background */
+            z-index: 1000; /* Below modal, above content */
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.open {
+            display: block;
+            opacity: 1;
+        }
+
+        /* --- Modal Size Adjustment --- */
+        .filters-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9); /* Initial state for animation */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1001; /* Ensure it's above overlay */
+            width: 90%; /* Max width relative to viewport, for smaller screens */
+            /* max-width: 720px; */  /* Previous value */
+            max-width: 580px;     /* CHANGE: Reduce max width significantly */
+            max-height: 90vh;     /* Limit height on smaller viewports */
+            display: none;        /* Hidden by default */
+            flex-direction: column;
+            opacity: 0;           /* Start faded out */
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition */
+        }
+
+        /* Style when the modal is open */
+        .filters-modal.open {
+            display: flex;     /* Show the modal */
+            opacity: 1;        /* Fade it in */
+            transform: translate(-50%, -50%) scale(1); /* Scale to full size */
+        }
+
+        /* --- Basic noUiSlider Styling (add/override as needed) --- */
+        #price-range-slider { /* Target the specific slider instance */
+            height: 4px;
+            margin: 30px 12px 10px 12px; /* Adjust margins */
+            border: none; /* Override potential borders */
+            box-shadow: none; /* Override potential shadows */
+        }
+
+        #price-range-slider .noUi-target {
+            background: #e0e0e0; /* Track background */
+            border-radius: 2px;
+            height: 4px; /* Ensure height */
+            border: none;
+            box-shadow: none;
+        }
+
+        #price-range-slider .noUi-connect {
+            background: #717171; /* Selected range color */
+            border-radius: 2px; /* Match track */
+        }
+
+        #price-range-slider .noUi-handle {
+            width: 24px; /* Handle size */
+            height: 24px;
+            border-radius: 50%;
+            background: #ffffff; /* White background */
+            border: 1px solid #b0b0b0; /* Grey border */
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+            cursor: pointer;
+            /* Positioning */
+            top: -10px;  /* Center vertically on the track */
+            right: -12px; /* Offset by half its width */
+        }
+        /* Remove default library pseudo-elements if they interfere */
+        #price-range-slider .noUi-handle::before,
+        #price-range-slider .noUi-handle::after {
+            display: none;
+        }
+        /* Style when focused (optional) */
+        #price-range-slider .noUi-handle:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(34, 34, 34, 0.2); /* Example focus ring */
+        }
+        /* Style for disabled state (if you implement disabling) */
+        #price-range-slider .noUi-handle[disabled] {
+            background: #f7f7f7;
+            border-color: #e0e0e0;
+            box-shadow: none;
+        }
+
+        .noUi-target {
+            background: #e0e0e0; /* Track background */
+            border-radius: 2px;
+            border: none;
+            box-shadow: none;
+        }
+        .noUi-connect {
+            background: #717171; /* Selected range background */
+        }
+        .noUi-handle {
+            width: 24px !important; /* Override library style if needed */
+            height: 24px !important;
+            border-radius: 50%;
+            background: #222222;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            /* Position adjustments */
+            top: -10px !important; /* Adjust vertical position */
+            right: -12px !important; /* Half the width */
+        }
+        .noUi-handle:focus { outline: none; }
+        .noUi-handle::before, .noUi-handle::after { display: none; } /* Hide default pseudo-elements */
+
+        /* --- Histogram Highlight Styles --- */
+        .price-histogram {
+            display: flex;           /* Arrange bars horizontally */
+            align-items: flex-end; /* Align bars to the bottom */
+            gap: 1px;             /* Tiny space between bars */
+            height: 60px;          /* Overall height of the histogram area */
+            margin-bottom: 0;
+            overflow: hidden;       /* Hide any overflow */
+            border-radius: 4px;   /* Optional: Rounded corners for the container */
+            position: relative;     /* Keep for potential future use */
+        }
+
+        .hist-bar {
+            flex-grow: 1;         /* Allow bars to share width equally */
+            background-color: #e0e0e0; /* Default GRAY color for inactive bars */
+            border-radius: 1px;   /* Slightly rounded tops */
+            transition: background-color 0.1s linear; /* Smooth color change */
+            /* Height will be set by inline style from JS */
+        }
+
+        .hist-bar.active {
+            background-color: #E61E4D; /* ACTIVE PINK color (adjust if needed) */
+        }
+        .histogram-selection {
+            position: absolute;
+            bottom: 0;
+            left: 0%; /* Initial state set by JS */
+            width: 0%; /* Initial state set by JS */
+            height: 100%;
+            background-color: rgba(113, 113, 113, 0.3); /* Grey overlay */
+            pointer-events: none;
+            transition: left 0.1s linear, width 0.1s linear;
+            border-radius: 4px; /* Match parent */
+        }
+
+        /* Adjust slider container margin if needed */
+        .price-slider-container {
+            height: auto; /* Let content define height */
+            margin-bottom: 20px;
+        }
+
+        /* Modal Header */
+/* --- Modal Header & Close Button Position Adjustment --- */
+        .modal-header {
+            display: flex;
+            /* justify-content: space-between; */ /* Remove or change */
+            justify-content: center; /* Center title */
+            align-items: center;
+            padding: 16px 24px; /* Keep padding */
+            border-bottom: 1px solid #ebebeb;
+            flex-shrink: 0;
+            position: relative; /* ADDED: Make it the positioning context for the button */
+        }
+
+        .modal-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+            /* flex-grow: 1; */ /* No longer needed for centering this way */
+        }
+
+        .modal-close-btn {
+            /* Position it absolutely */
+            position: absolute;  /* ADDED */
+            top: 16px;           /* ADDED: Adjust distance from top */
+            right: 24px;          /* ADDED: Adjust distance from right */
+
+            /* Keep existing styles */
+            padding: 8px;
+            /* margin: -8px; */ /* Remove negative margin if it interferes */
+            border-radius: 50%;
+            display: flex;
+            background: none; /* Ensure no background */
+            border: none; /* Ensure no border */
+            cursor: pointer;
+        }
+        .modal-close-btn:hover {
+            background-color: #f7f7f7; /* Keep hover effect */
+        }
+
+        /* Modal Content */
+        .modal-content {
+            overflow-y: auto; /* Enable scrolling for content */
+            padding: 0 24px;
+            flex-grow: 1; /* Allow content to take available space */
+        }
+        .filter-section {
+            padding: 24px 0;
+            border-bottom: 1px solid #ebebeb;
+        }
+        .filter-section:last-child {
+            border-bottom: none;
+            padding-bottom: 32px; /* More space at the end */
+        }
+        .filter-section h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .filter-section .subtitle {
+            font-size: 0.9em;
+            color: #717171;
+            margin-bottom: 16px;
+        }
+
+        /* Modal Footer */
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-top: 1px solid #ebebeb;
+            flex-shrink: 0; /* Prevent footer shrinking */
+        }
+        .clear-all-btn {
+            font-weight: 600;
+            text-decoration: underline;
+            font-size: 0.95em;
+            padding: 8px 0;
+        }
+        .show-places-btn {
+            background-color: #222222;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        .show-places-btn:hover {
+            background-color: #000000;
+        }
+
+        /* --- Specific Filter Control Styles --- */
+
+        /* Segmented Control (Type of Place) */
+        .segmented-control {
+            display: flex;
+            border: 1px solid #b0b0b0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .segmented-control button {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-right: 1px solid #b0b0b0;
+            background-color: #ffffff;
+            transition: background-color 0.2s;
+        }
+        .segmented-control button:last-child {
+            border-right: none;
+        }
+        .segmented-control button.active {
+            background-color: #222222;
+            color: #ffffff;
+        }
+        .segmented-control button:not(.active):hover {
+            background-color: #f7f7f7;
+        }
+
+        /* Price Range Placeholder Styles */
+        .price-histogram { margin-bottom: 20px; }
+        .price-slider-container { height: 20px; position: relative; margin-bottom: 20px; }
+        /* --- Add styles for your chosen slider library here --- */
+        .slider-track { background-color: #e0e0e0; height: 4px; position: absolute; width: 100%; top: 8px; border-radius: 2px; }
+        .slider-range { background-color: #717171; height: 4px; position: absolute; top: 0; left: 10%; width: 80%; border-radius: 2px;} /* Placeholder range */
+        .slider-handle { width: 20px; height: 20px; background-color: #222; border-radius: 50%; position: absolute; top: 0px; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .slider-handle.min { left: 10%; } /* Placeholder pos */
+        .slider-handle.max { left: 90%; } /* Placeholder pos */
+
+        .price-inputs { display: flex; align-items: center; gap: 10px; }
+        .price-input-wrapper {
+            flex: 1;
+            border: 1px solid #b0b0b0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            position: relative;
+        }
+        .price-input-wrapper label {
+            display: block;
+            font-size: 0.7em;
+            color: #717171;
+            margin-bottom: 2px;
+        }
+        .price-input-wrapper input[type="text"] {
+            border: none;
+            font-size: 0.95em;
+            font-weight: 500;
+            width: calc(100% - 10px); /* Adjust for prefix */
+            padding-left: 10px; /* Space for prefix */
+            background: none;
+            outline: none;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .price-input-wrapper .currency-prefix {
+            position: absolute;
+            left: 12px;
+            bottom: 9px;
+            font-size: 0.95em;
+            font-weight: 500;
+            color: #222;
+            pointer-events: none;
+        }
+        .price-separator { color: #b0b0b0; }
+
+
+        /* Rooms and Beds Counter Styles */
+        .counter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+        .counter-label {
+            font-size: 1em;
+        }
+        .counter-control {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .counter-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #b0b0b0;
+            border-radius: 50%;
+            font-size: 1.2em;
+            color: #717171;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .counter-btn:hover:not(.disabled) {
+            border-color: #222222;
+            color: #222222;
+        }
+        .counter-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #e0e0e0;
+        }
+        .counter-value {
+            font-size: 1em;
+            min-width: 25px; /* Ensure space for "Any" or "8+" */
+            text-align: center;
+        }
+
+        /* Amenities Chip Styles */
+                /* Amenities/Booking Chip Styles (More Specific) */
+        /* Use the modal ID to increase specificity */
+        #filters-modal .chip-container {
+            display: flex;        /* Arrange chips in a row */
+            flex-wrap: wrap;      /* Allow chips to wrap to the next line */
+            gap: 10px 12px;     /* Vertical gap, Horizontal gap */
+            margin-bottom: 16px; /* Space below the chips */
+        }
+
+        #filters-modal .chip img {  /* Target img instead of svg */
+            height: 18px;           /* Set desired height */
+            width: 18px;            /* Set desired width */
+            object-fit: contain;  /* Scale image nicely if needed */
+            flex-shrink: 0;       /* Prevent icon from shrinking */
+            /* Remove SVG-specific properties like 'fill' */
+            /* vertical-align: middle; */ /* May not be needed with display: inline-flex on parent */
+        }
+        #filters-modal .chip {
+            /* --- Reset Button Defaults & Control Layout --- */
+            display: inline-flex; /* Align icon and text */
+            align-items: center;  /* Vertically center icon and text */
+            justify-content: flex-start; /* Align content to the start */
+            box-sizing: border-box;
+            width: auto;          /* Size based on content */
+            height: auto;         /* Size based on content */
+            min-height: 40px;     /* Ensure minimum touch target height */
+            text-align: left;     /* Align text to the left */
+            cursor: pointer;
+            margin: 0;            /* Remove default button margins */
+
+            /* --- Appearance --- */
+            border: 1px solid #b0b0b0; /* Default border */
+            border-radius: 32px;    /* Make it pill-shaped */
+            padding: 8px 16px;    /* Padding inside the chip */
+            font-size: 0.875em;   /* Approx 14px */
+            font-weight: 400;     /* Normal weight */
+            line-height: 1.2;
+            background-color: #ffffff; /* Ensure default background is white */
+            color: #222222;      /* Default text color */
+            gap: 8px;             /* Space between icon (if present) and text */
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        #filters-modal .chip:hover {
+            border-color: #222222; /* Darker border on hover */
+        }
+
+        #filters-modal .chip.selected {
+            border-color: #222222;       /* Darker border when selected */
+            background-color: #f7f7f7;  /* Light grey background when selected */
+            font-weight: 600;         /* Slightly bolder text when selected */
+        }
+
+
+        .show-more-btn {
+            font-weight: 600;
+            text-decoration: underline;
+            margin-top: 16px;
+            font-size: 0.95em;
+        }
         /* --- Listing Grid Styles --- */
          /* main { 
             padding-top: 24px; 
@@ -957,7 +1401,7 @@
                 <button class="active">Popular</button> <button>Arts & culture</button> <button>Outdoors</button> <button>Mountains</button> <button>Beach</button> <button>Unique stays</button> <button>Categories</button> <button>Things to do</button>
             </nav>
             <div class="inspiration-grid">
-                <div class="location-item"> <a href="#">Canmore</a> <span>Flat rentals</span> </div> <div class="location-item"> <a href="#">Benalmádena</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Marbella</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Mijas</a> <span>Flat rentals</span> </div> <div class="location-item"> <a href="#">Prescott</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#">Scottsdale</a> <span>Rentals with pools</span> </div> <div class="location-item"> <a href="#">Tucson</a> <span>Apartment rentals</span> </div> <div class="location-item"> <a href="#">Jasper</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#">Mountain View</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Devonport</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Mallacoota</a> <span>Pet-friendly rentals</span> </div> <div class="location-item"> <a href="#">Ibiza</a> <span>Holiday rentals</span> </div> <div class="location-item"> <a href="#">Anaheim</a> <span>Beach house rentals</span> </div> <div class="location-item"> <a href="#">Monterey</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Paso Robles</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Santa Barbara</a> <span>Beach house rentals</span> </div> <div class="location-item"> <a href="#">Sonoma</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#" class="show-more-link">Show more ⌄</a></div>
+                <div class="location-item"> <a href="#">Canmore</a> <span>Flat rentals</span> </div> <div class="location-item"> <a href="#">Benalmádena</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Marbella</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Mijas</a> <span>Flat rentals</span> </div> <div class="location-item"> <a href="#">Prescott</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#">Scottsdale</a> <span>Rentals with pools</span> </div> <div class="location-item"> <a href="#">Tucson</a> <span>Apartment rentals</span> </div> <div class="location-item"> <a href="#">Jasper</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#">Mountain View</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Devonport</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Mallacoota</a> <span>Pet-friendly rentals</span> </div> <div class="location-item"> <a href="#">Ibiza</a> <span>Holiday rentals</span> </div> <div class="location-item"> <a href="#">Anaheim</a> <span>Beach house rentals</span> </div> <div class="location-item"> <a href="#">Monterey</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Paso Robles</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Santa Barbara</a> <span>Beach house rentals</span> </div> <div class="location-item"> <a href="#">Sonoma</a> <span>Cabin rentals</span> </div> 
             </div>
         </div>
          <div class="main-footer">
@@ -993,7 +1437,7 @@
              </div>
          </div>
     </footer>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Element References ---
@@ -1001,177 +1445,271 @@
             const navHomes = document.getElementById('nav-homes');
             const navExperiences = document.getElementById('nav-experiences');
             const searchBar = document.getElementById('search-bar');
-            const categoryContainer = document.getElementById('category-filter-items');
-            const categoryItems = categoryContainer.querySelectorAll('.category-item');
+            const categoryContainer = document.getElementById('category-filter-items'); // Still needed for category item clicks
             const taxToggleContainer = document.getElementById('tax-toggle-container');
             const taxToggleSwitch = document.getElementById('tax-toggle-switch');
             const listingPrices = document.querySelectorAll('.listing-price');
             const taxToggleLabel = document.getElementById('tax-toggle-label');
-            const categoryWrapper = document.querySelector('.category-filter-wrapper');
-            const scrollLeftBtn = document.querySelector('.scroll-arrow.left');
-            const scrollRightBtn = document.querySelector('.scroll-arrow.right');
+            const categoryWrapper = document.querySelector('.category-filter-wrapper'); // The element we will try to scroll now
+            const scrollLeftBtn = document.querySelector('.scroll-arrow.left');     // Category scroll left button
+            const scrollRightBtn = document.querySelector('.scroll-arrow.right');    // Category scroll right button
             const filterContainer = document.getElementById('filter-container');
-             const inspirationTabs = document.querySelectorAll('.inspiration-tabs button'); // Get inspiration tabs
-
+            const inspirationTabs = document.querySelectorAll('.inspiration-tabs button');
+    
+            // --- References for Filters Modal ---
+            const filtersButton = document.querySelector('.filters-button');
+            const filtersModal = document.getElementById('filters-modal');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalCloseBtn = filtersModal?.querySelector('.modal-close-btn');
+            const clearAllBtn = filtersModal?.querySelector('.clear-all-btn');
+            const showPlacesBtn = filtersModal?.querySelector('.show-places-btn');
+            const typeOfPlaceBtns = filtersModal?.querySelectorAll('.type-of-place button');
+            const allChips = filtersModal?.querySelectorAll('.chip-container .chip');
+            const counterControls = filtersModal?.querySelectorAll('.counter-control');
+            const priceSliderElement = document.getElementById('price-range-slider');
+            const minPriceInput = document.getElementById('min-price');
+            const maxPriceInput = document.getElementById('max-price');
+            const histogramBarContainer = document.getElementById('price-histogram-bars');
+    
+            // --- Filter State & Config ---
+            const initialFilters = { type: 'any', minPrice: 860, maxPrice: 85000, bedrooms: 'any', beds: 'any', bathrooms: 'any', amenities: [], instant_book: false, self_checkin: false, allows_pets: false };
+            let currentFilters = { ...initialFilters };
+            const countersState = { bedrooms: 0, beds: 0, bathrooms: 0 };
+            const priceSliderConfig = { minRange: 500, maxRange: 100000, step: 100 };
+            const histogramBarData = [5,6,7,8,10,12,15,18,22,26,30,35,40,45,50,55,60,65,70,75,80,78,75,72,68,64,60,56,52,48,44,40,36,32,28,24,20,18,16,14,12,10,9,8,7,6,5,4,4,3];
+            const numBars = histogramBarData.length;
+    
             // --- Scroll Handling for Header ---
-            const scrollThreshold = 10;
-            let isScrolled = false;
-            window.addEventListener('scroll', () => {
-                const scrollY = window.scrollY;
-                if (scrollY > scrollThreshold && !isScrolled) {
-                    pageHeader.classList.add('scrolled'); isScrolled = true;
-                } else if (scrollY <= scrollThreshold && isScrolled) {
-                    pageHeader.classList.remove('scrolled'); isScrolled = false;
-                }
-            }, { passive: true });
-
+            if (pageHeader) { /* ... header scroll logic ... */
+                 const scrollThreshold = 10; let isScrolled = false; window.addEventListener('scroll', () => { const scrollY = window.scrollY; if (scrollY > scrollThreshold && !isScrolled) { pageHeader.classList.add('scrolled'); isScrolled = true; } else if (scrollY <= scrollThreshold && isScrolled) { pageHeader.classList.remove('scrolled'); isScrolled = false; } }, { passive: true });
+            }
+    
             // --- Search Mode Switching ---
-            navHomes.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('homes'); });
-            navExperiences.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('experiences'); });
-            function switchSearchMode(mode) {
-                if (mode === 'homes') {
-                    navHomes.classList.add('active'); navExperiences.classList.remove('active');
-                    searchBar.classList.add('mode-homes'); searchBar.classList.remove('mode-experiences');
-                } else if (mode === 'experiences') {
-                    navHomes.classList.remove('active'); navExperiences.classList.add('active');
-                    searchBar.classList.remove('mode-homes'); searchBar.classList.add('mode-experiences');
-                }
+            if (navHomes && navExperiences && searchBar) { /* ... search mode switch logic ... */
+                 navHomes.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('homes'); }); navExperiences.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('experiences'); }); function switchSearchMode(mode) { if (mode === 'homes') { navHomes.classList.add('active'); navExperiences.classList.remove('active'); searchBar.classList.add('mode-homes'); searchBar.classList.remove('mode-experiences'); } else if (mode === 'experiences') { navHomes.classList.remove('active'); navExperiences.classList.add('active'); searchBar.classList.remove('mode-homes'); searchBar.classList.add('mode-experiences'); } }
+                 switchSearchMode('homes');
             }
-
+    
             // --- Carousel Logic ---
-            const carousels = document.querySelectorAll('.listing-card .carousel');
-            carousels.forEach(carousel => {
-                const slidesContainer = carousel.querySelector('.carousel-slides');
-                const slides = carousel.querySelectorAll('.carousel-slide');
-                const prevBtn = carousel.querySelector('.carousel-btn.prev');
-                const nextBtn = carousel.querySelector('.carousel-btn.next');
-                const dotsContainer = carousel.querySelector('.carousel-dots');
-                let currentSlide = 0;
-                const totalSlides = slides.length;
-
-                // Create dots
-                if (dotsContainer && totalSlides > 1) {
-                    // Clear any existing dots (useful if content is dynamically added later)
-                    dotsContainer.innerHTML = '';
-                    for (let i = 0; i < totalSlides; i++) {
-                        const dot = document.createElement('span');
-                        dot.addEventListener('click', () => goToSlide(i));
-                        dotsContainer.appendChild(dot);
-                    }
-                    updateDots(); // Initial active dot
-                } else if (dotsContainer) {
-                    dotsContainer.style.display = 'none'; // Hide dots container if only 1 slide
-                }
-
-                function goToSlide(slideIndex) {
-                    // Clamp index
-                    if (totalSlides <= 1) return; // Do nothing if only one slide
-
-                    if (slideIndex < 0) {
-                        currentSlide = totalSlides - 1;
-                    } else if (slideIndex >= totalSlides) {
-                        currentSlide = 0;
-                    } else {
-                        currentSlide = slideIndex;
-                    }
-                    slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
-                    updateDots();
-                }
-
-                function updateDots() {
-                    if (!dotsContainer || totalSlides <= 1) return;
-                    const dots = dotsContainer.querySelectorAll('span');
-                    dots.forEach((dot, index) => {
-                        if (index === currentSlide) {
-                            dot.classList.add('active');
-                        } else {
-                            dot.classList.remove('active');
-                        }
-                    });
-                }
-
-                if (prevBtn && nextBtn && totalSlides > 1) {
-                     prevBtn.style.display = 'flex'; // Ensure buttons are potentially visible
-                     nextBtn.style.display = 'flex';
-
-                    prevBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent card click
-                        goToSlide(currentSlide - 1);
-                    });
-
-                    nextBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent card click
-                        goToSlide(currentSlide + 1);
-                    });
-                 } else {
-                    // Hide buttons if only 1 slide
-                    if (prevBtn) prevBtn.style.display = 'none';
-                    if (nextBtn) nextBtn.style.display = 'none';
-                 }
-
-                 // Initial check to hide controls if only one slide
-                 if (totalSlides <= 1) {
-                      if (dotsContainer) dotsContainer.style.display = 'none';
-                      if (prevBtn) prevBtn.style.display = 'none';
-                    if (nextBtn) nextBtn.style.display = 'none';
-                 }
-            });
-
-
-            // --- Mock Category Filter Interaction ---
-            categoryContainer.addEventListener('click', (event) => {
-                const clickedItem = event.target.closest('.category-item');
-                if (!clickedItem || !categoryContainer.contains(clickedItem)) return;
-                categoryItems.forEach(item => item.classList.remove('active'));
-                clickedItem.classList.add('active');
-                console.log(`Category Filter activated: ${clickedItem.querySelector('span').textContent}`);
-            });
-
-             // --- Mock Inspiration Tabs Interaction ---
-             inspirationTabs.forEach(tab => {
-                  tab.addEventListener('click', () => {
-                       inspirationTabs.forEach(t => t.classList.remove('active')); // Remove active from all
-                       tab.classList.add('active'); // Add active to clicked
-                       console.log(`Inspiration Tab activated: ${tab.textContent}`);
-                       // In a real app, update the grid below
-                  });
+             const carousels = document.querySelectorAll('.listing-card .carousel');
+             carousels.forEach(carousel => { /* ... Full carousel logic ... */
+                  const slidesContainer = carousel.querySelector('.carousel-slides'); const slides = carousel.querySelectorAll('.carousel-slide'); const prevBtn = carousel.querySelector('.carousel-btn.prev'); const nextBtn = carousel.querySelector('.carousel-btn.next'); const dotsContainer = carousel.querySelector('.carousel-dots'); if (!slidesContainer || slides.length === 0) return; let currentSlide = 0; const totalSlides = slides.length; if (dotsContainer && totalSlides > 1) { dotsContainer.innerHTML = ''; for (let i = 0; i < totalSlides; i++) { const dot = document.createElement('span'); dot.addEventListener('click', () => goToSlide(i)); dotsContainer.appendChild(dot); } updateDots(); } else if (dotsContainer) { dotsContainer.style.display = 'none'; } function goToSlide(slideIndex) { if (totalSlides <= 1) return; currentSlide = (slideIndex + totalSlides) % totalSlides; slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`; updateDots(); } function updateDots() { if (!dotsContainer || totalSlides <= 1) return; const dots = dotsContainer.querySelectorAll('span'); dots.forEach((dot, index) => dot.classList.toggle('active', index === currentSlide)); } if (prevBtn && nextBtn && totalSlides > 1) { prevBtn.style.display = 'flex'; nextBtn.style.display = 'flex'; prevBtn.addEventListener('click', (e) => { e.stopPropagation(); goToSlide(currentSlide - 1); }); nextBtn.addEventListener('click', (e) => { e.stopPropagation(); goToSlide(currentSlide + 1); }); } else { if (prevBtn) prevBtn.style.display = 'none'; if (nextBtn) nextBtn.style.display = 'none'; } if (totalSlides <= 1) { if (dotsContainer) dotsContainer.style.display = 'none'; if (prevBtn) prevBtn.style.display = 'none'; if (nextBtn) nextBtn.style.display = 'none'; }
              });
-
+    
+            // --- Mock Category Filter Interaction (Item Clicks) ---
+             if (categoryContainer) { /* ... category item click logic ... */
+                categoryContainer.addEventListener('click', (event) => { const clickedItem = event.target.closest('.category-item'); if (!clickedItem || !categoryContainer.contains(clickedItem) || event.target.closest('.scroll-arrow')) return; const categoryItems = categoryContainer.querySelectorAll('.category-item'); categoryItems.forEach(item => item.classList.remove('active')); clickedItem.classList.add('active'); console.log(`Category Filter activated: ${clickedItem.querySelector('span').textContent}`); });
+             }
+    
+            // --- Mock Inspiration Tabs Interaction ---
+             if (inspirationTabs.length > 0) { /* ... inspiration tabs logic ... */
+                inspirationTabs.forEach(tab => { tab.addEventListener('click', () => { inspirationTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active'); console.log(`Inspiration Tab activated: ${tab.textContent}`); }); });
+             }
+    
             // --- Mock Tax Toggle Interaction ---
-            taxToggleContainer.addEventListener('click', () => {
-                const isToggleOn = taxToggleSwitch.classList.toggle('on');
-                updatePrices(isToggleOn);
-                updateToggleLabel(isToggleOn);
-            });
-            function updateToggleLabel(isOn) { taxToggleLabel.textContent = isOn ? 'Display price per night' : 'Display total before taxes'; }
-            function updatePrices(showTotal) {
-                listingPrices.forEach(priceElement => {
-                    const basePrice = parseInt(priceElement.dataset.basePrice, 10);
-                    const priceValueElement = priceElement.querySelector('strong');
-                    const priceQualifierElement = priceElement.querySelector('.price-qualifier');
-                    if (isNaN(basePrice)) return;
-                    const formatCurrency = (value) => `₹${value.toLocaleString('en-IN')}`;
-                    if (showTotal) {
-                        const totalPrice = Math.round(basePrice * 1.10); // Example tax calculation (10%)
-                        priceValueElement.textContent = formatCurrency(totalPrice); priceQualifierElement.textContent = 'total before taxes';
-                    } else {
-                        priceValueElement.textContent = formatCurrency(basePrice); priceQualifierElement.textContent = 'night';
-                    }
+             if (taxToggleContainer && taxToggleSwitch && taxToggleLabel) { /* ... tax toggle logic ... */
+                 taxToggleContainer.addEventListener('click', () => { const isToggleOn = taxToggleSwitch.classList.toggle('on'); updatePrices(isToggleOn); updateToggleLabel(isToggleOn); }); function updateToggleLabel(isOn) { taxToggleLabel.textContent = isOn ? 'Display price per night' : 'Display total before taxes'; } function updatePrices(showTotal) { listingPrices.forEach(priceElement => { const basePrice = parseInt(priceElement.dataset.basePrice, 10); const priceValueElement = priceElement.querySelector('strong'); const priceQualifierElement = priceElement.querySelector('.price-qualifier'); if (isNaN(basePrice) || !priceValueElement || !priceQualifierElement) return; const formatCurrency = (value) => `₹${value.toLocaleString('en-IN')}`; if (showTotal) { const totalPrice = Math.round(basePrice * 1.10); priceValueElement.textContent = formatCurrency(totalPrice); priceQualifierElement.textContent = 'total before taxes'; } else { priceValueElement.textContent = formatCurrency(basePrice); priceQualifierElement.textContent = 'night'; } }); }
+             }
+    
+    
+            // === START: Simplified Filter Arrow Scroll Logic ===
+            // This version scrolls the WRAPPER and does NOT hide/show arrows.
+            if (scrollLeftBtn && scrollRightBtn && categoryWrapper) { // Check if these elements exist
+                const simpleScrollAmount = 300; // Fixed scroll amount in pixels
+    
+                console.log("DEBUG: Setting up SIMPLE arrow scroll logic."); // DEBUG
+    
+                scrollLeftBtn.addEventListener('click', () => {
+                    console.log("DEBUG: Simple Left Arrow Clicked!"); // DEBUG
+                    // Attempt to scroll the WRAPPER
+                    categoryWrapper.scrollBy({
+                        left: -simpleScrollAmount,
+                        behavior: 'smooth'
+                    });
                 });
+    
+                scrollRightBtn.addEventListener('click', () => {
+                    console.log("DEBUG: Simple Right Arrow Clicked!"); // DEBUG
+                    // Attempt to scroll the WRAPPER
+                    categoryWrapper.scrollBy({
+                        left: simpleScrollAmount,
+                        behavior: 'smooth'
+                    });
+                });
+    
+                 // Ensure arrows are not hidden by default if using this logic
+                 scrollLeftBtn?.classList.remove('hidden');
+                 scrollRightBtn?.classList.remove('hidden');
+                 console.log("DEBUG: Ensured arrows are not hidden."); // DEBUG
+    
+            } else {
+                console.warn("Could not find elements for simple arrow scrolling (wrapper/buttons).");
             }
-            updateToggleLabel(taxToggleSwitch.classList.contains('on')); // Initial label setup
-
-            // --- Mock Scroll Button Clicks ---
-            const scrollAmount = 300;
-            scrollLeftBtn.addEventListener('click', () => { categoryWrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); console.log('Scroll Left'); });
-            scrollRightBtn.addEventListener('click', () => { categoryWrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' }); console.log('Scroll Right'); });
-
-             // --- Initial Setup ---
-             switchSearchMode('homes'); // Set initial search mode
-             updatePrices(taxToggleSwitch.classList.contains('on')); // Initial price display based on toggle state
-
-        });
+            // === END: Simplified Filter Arrow Scroll Logic ===
+    
+    
+            // --- Filters Modal Logic ---
+            if (filtersModal && modalOverlay && filtersButton) {
+                // ... (Keep ALL the modal logic from the previous full script) ...
+                // Includes: generateHistogramBars, updateHistogramColors, slider init,
+                // open/close modal, syncCountersFromState, syncAllFiltersUI,
+                // listeners for type/amenities/counters/clear/show places
+                console.log("DEBUG: Setting up modal logic...");
+    
+                 function generateHistogramBars() { if (!histogramBarContainer) return; histogramBarContainer.innerHTML = ''; for (let i = 0; i < numBars; i++) { const bar = document.createElement('div'); bar.className = 'hist-bar'; bar.style.height = `${Math.max(1, histogramBarData[i] || 1)}%`; histogramBarContainer.appendChild(bar); } }
+                 function updateHistogramColors(minVal, maxVal) { if (!histogramBarContainer) return; const bars = histogramBarContainer.querySelectorAll('.hist-bar'); if (bars.length !== numBars) return; const pricePerBar = (priceSliderConfig.maxRange - priceSliderConfig.minRange) / numBars; bars.forEach((bar, index) => { const barMinPrice = priceSliderConfig.minRange + (index * pricePerBar); const barMaxPrice = barMinPrice + pricePerBar; const isActive = (minVal <= barMaxPrice && maxVal >= barMinPrice); bar.classList.toggle('active', isActive); }); }
+                 if (priceSliderElement && minPriceInput && maxPriceInput && typeof noUiSlider !== 'undefined') { generateHistogramBars(); noUiSlider.create(priceSliderElement, { start: [currentFilters.minPrice, currentFilters.maxPrice], connect: true, step: priceSliderConfig.step, range: { 'min': priceSliderConfig.minRange, 'max': priceSliderConfig.maxRange } }); priceSliderElement.noUiSlider.on('update', function (values, handle) { let minValue = parseInt(values[0]); let maxValue = parseInt(values[1]); minPriceInput.value = minValue.toLocaleString('en-IN'); maxPriceInput.value = maxValue >= priceSliderConfig.maxRange ? `${maxValue.toLocaleString('en-IN')}+` : maxValue.toLocaleString('en-IN'); currentFilters.minPrice = minValue; currentFilters.maxPrice = maxValue; updateHistogramColors(minValue, maxValue); }); updateHistogramColors(currentFilters.minPrice, currentFilters.maxPrice); } else { console.warn("Price slider elements/library not found."); }
+                 function openFiltersModal() { modalOverlay.classList.add('open'); filtersModal.classList.add('open'); document.body.style.overflow = 'hidden'; syncAllFiltersUI(); } function closeFiltersModal() { modalOverlay.classList.remove('open'); filtersModal.classList.remove('open'); document.body.style.overflow = ''; }
+                 function syncCountersFromState() { if (!counterControls) return; counterControls.forEach(control => { const minusBtn = control.querySelector('.minus'); const valueSpan = control.querySelector('.counter-value'); if (!minusBtn || !valueSpan) return; const target = minusBtn.dataset.target; const stateValue = currentFilters[target]; countersState[target] = (stateValue === 'any' ? 0 : Number(stateValue)); let displayValue = countersState[target]; valueSpan.textContent = displayValue === 0 ? 'Any' : (displayValue >= 8 ? `${displayValue}+` : displayValue); minusBtn.classList.toggle('disabled', displayValue === 0); }); }
+                 function syncAllFiltersUI() { typeOfPlaceBtns?.forEach(btn => btn.classList.toggle('active', btn.dataset.value === currentFilters.type)); allChips?.forEach(chip => { const value = chip.dataset.value; const h3Element = chip.closest('.filter-section')?.querySelector('h3'); const isAmenity = h3Element && h3Element.textContent === 'Amenities'; if (isAmenity) { chip.classList.toggle('selected', currentFilters.amenities.includes(value)); } else { chip.classList.toggle('selected', !!currentFilters[value]); } }); syncCountersFromState(); if (priceSliderElement && priceSliderElement.noUiSlider) { priceSliderElement.noUiSlider.set([currentFilters.minPrice, currentFilters.maxPrice]); } else { if (minPriceInput) minPriceInput.value = currentFilters.minPrice.toLocaleString('en-IN'); if (maxPriceInput) maxPriceInput.value = currentFilters.maxPrice >= priceSliderConfig.maxRange ? `${currentFilters.maxPrice.toLocaleString('en-IN')}+` : currentFilters.maxPrice.toLocaleString('en-IN'); } }
+                 filtersButton.addEventListener('click', openFiltersModal); if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeFiltersModal); modalOverlay.addEventListener('click', closeFiltersModal);
+                 if (typeOfPlaceBtns) { typeOfPlaceBtns.forEach(btn => { btn.addEventListener('click', () => { typeOfPlaceBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentFilters.type = btn.dataset.value; console.log("Selected Type:", currentFilters.type); }); }); }
+                 if (allChips) { allChips.forEach(chip => { chip.addEventListener('click', () => { chip.classList.toggle('selected'); const value = chip.dataset.value; const h3Element = chip.closest('.filter-section')?.querySelector('h3'); const isAmenity = h3Element && h3Element.textContent === 'Amenities'; if (isAmenity) { const index = currentFilters.amenities.indexOf(value); if (chip.classList.contains('selected') && index === -1) { currentFilters.amenities.push(value); } else if (!chip.classList.contains('selected') && index > -1) { currentFilters.amenities.splice(index, 1); } console.log("Selected Amenities:", currentFilters.amenities); } else { currentFilters[value] = chip.classList.contains('selected'); console.log("Booking Options Updated:", { instant_book: currentFilters.instant_book, self_checkin: currentFilters.self_checkin, allows_pets: currentFilters.allows_pets }); } }); }); }
+                 if (counterControls) { counterControls.forEach(control => { const minusBtn = control.querySelector('.minus'); const plusBtn = control.querySelector('.plus'); const valueSpan = control.querySelector('.counter-value'); if (!minusBtn || !plusBtn || !valueSpan) return; const target = minusBtn.dataset.target; const updateCounterUIAndState = () => { if (!target || typeof countersState[target] === 'undefined') { console.error(`DEBUG: Invalid target "${target}" or missing countersState.`); return; } let displayValue = countersState[target]; let textToDisplay = displayValue === 0 ? 'Any' : (displayValue >= 8 ? `${displayValue}+` : displayValue); try { valueSpan.textContent = textToDisplay; } catch (e) { console.error(`Error setting textContent for ${target}:`, e); } minusBtn.classList.toggle('disabled', displayValue === 0); currentFilters[target] = displayValue === 0 ? 'any' : displayValue; }; minusBtn.addEventListener('click', () => { if (countersState[target] > 0) { countersState[target]--; updateCounterUIAndState(); } }); plusBtn.addEventListener('click', () => { countersState[target]++; updateCounterUIAndState(); }); if (typeof countersState[target] === 'undefined') countersState[target] = 0; }); syncCountersFromState(); } else { console.warn("Counter controls not found."); }
+                 if (clearAllBtn) { clearAllBtn.addEventListener('click', () => { currentFilters = { ...initialFilters }; syncAllFiltersUI(); console.log("Filters Cleared", currentFilters); }); }
+                 if (showPlacesBtn) { showPlacesBtn.addEventListener('click', () => { console.log("Applying Filters:", currentFilters); /* Add filtering logic */ closeFiltersModal(); }); }
+    
+            } // End Filters Modal Logic Check
+    
+    
+            // --- Initial Setup ---
+            if (taxToggleContainer && taxToggleSwitch && taxToggleLabel) {
+                const initialToggleState = taxToggleSwitch.classList.contains('on');
+                updateToggleLabel(initialToggleState);
+                updatePrices(initialToggleState);
+            }
+    
+        }); // End DOMContentLoaded
     </script>
+<div id="modal-overlay" class="modal-overlay"></div>
+<div id="filters-modal" class="filters-modal" role="dialog" aria-modal="true" aria-labelledby="filters-modal-title">
+    <div class="modal-header">
+        <button class="modal-close-btn" aria-label="Close filters">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; fill: none; height: 16px; width: 16px; stroke: currentcolor; stroke-width: 3; overflow: visible;"><path d="m6 6 20 20 M26 6 6 26"></path></svg>
+        </button>
+        <h2 id="filters-modal-title" class="modal-title">Filters</h2>
+    </div> <div class="modal-content">
 
+        <div class="filter-section">
+            <h3>Type of place</h3>
+            <div class="segmented-control type-of-place">
+                <button class="active" data-value="any">Any type</button>
+                <button data-value="room">Room</button>
+                <button data-value="entire_home">Entire home</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>Price range</h3>
+            <p class="subtitle">Nightly prices before fees and taxes</p>
+            <div class="price-histogram" id="price-histogram-bars">
+                </div>
+            <div class="price-slider-container">
+                <div id="price-range-slider"></div>
+            </div>
+            <div class="price-inputs">
+                <div class="price-input-wrapper">
+                    <label for="min-price">Minimum</label>
+                    <span class="currency-prefix">₹</span>
+                    <input type="text" id="min-price" readonly>
+                </div>
+                <span class="price-separator">–</span>
+                <div class="price-input-wrapper">
+                    <label for="max-price">Maximum</label>
+                    <span class="currency-prefix">₹</span>
+                    <input type="text" id="max-price" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>Rooms and beds</h3>
+            <div class="counter-row">
+                <span class="counter-label">Bedrooms</span>
+                <div class="counter-control">
+                    <button class="counter-btn minus disabled" aria-label="Decrease bedrooms" data-target="bedrooms">-</button>
+                    <span class="counter-value" data-id="bedrooms">Any</span>
+                    <button class="counter-btn plus" aria-label="Increase bedrooms" data-target="bedrooms">+</button>
+                </div>
+            </div>
+            <div class="counter-row">
+                <span class="counter-label">Beds</span>
+                <div class="counter-control">
+                    <button class="counter-btn minus disabled" aria-label="Decrease beds" data-target="beds">-</button>
+                    <span class="counter-value" data-id="beds">Any</span>
+                    <button class="counter-btn plus" aria-label="Increase beds" data-target="beds">+</button>
+                </div>
+            </div>
+            <div class="counter-row">
+                <span class="counter-label">Bathrooms</span>
+                <div class="counter-control">
+                    <button class="counter-btn minus disabled" aria-label="Decrease bathrooms" data-target="bathrooms">-</button>
+                    <span class="counter-value" data-id="bathrooms">Any</span>
+                    <button class="counter-btn plus" aria-label="Increase bathrooms" data-target="bathrooms">+</button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="filter-section">
+            <h3>Amenities</h3>
+            <div class="chip-container">
+                <button class="chip" data-value="wifi">
+                    <img src="icons/wifi.png" alt="Wifi icon" width="18" height="18">
+                    Wifi
+                </button>
+                <button class="chip" data-value="kitchen">
+                    <img src="icons/kitchen.png" alt="Kitchen icon" width="18" height="18">
+                     Kitchen
+                </button>
+                <button class="chip" data-value="washer">
+                    <img src="icons/washer.png" alt="Washing machine icon" width="18" height="18">
+                    Washing machine
+                </button>
+                <button class="chip" data-value="dryer">
+                    <img src="icons/dryer.png" alt="Dryer icon" width="18" height="18">
+                     Dryer
+                </button>
+                <button class="chip" data-value="aircon">
+                    <img src="icons/aircon.png" alt="Air conditioning icon" width="18" height="18">
+                    Air conditioning
+                </button>
+                <button class="chip" data-value="heating">
+                    <img src="icons/heating.png" alt="Heating icon" width="18" height="18">
+                    Heating
+                </button>
+                </div>
+             <!-- <button class="show-more-btn">
+                 Show more
+                 <svg viewBox="0 0 18 18" role="presentation" aria-hidden="true" focusable="false" style="height: 12px; width: 12px; fill: currentcolor;"><path d="m16.29 4.3a1 1 0 1 1 1.41 1.42l-8 8a1 1 0 0 1 -1.41 0l-8-8a1 1 0 1 1 1.41-1.42l7.29 7.29z" fill-rule="evenodd"></path></svg>
+             </button> -->
+        </div>
+
+        <div class="filter-section">
+            <h3>Booking options</h3>
+            <div class="chip-container">
+                <button class="chip" data-value="instant_book">
+                    <img src="icons/instant.png" alt="Instant book icon" width="18" height="18">
+                    Instant Book
+                </button>
+                <button class="chip" data-value="self_checkin">
+                     <img src="icons/self-checkin.png" alt="Self check-in icon" width="18" height="18">
+                    Self check-in
+                </button>
+                <button class="chip" data-value="allows_pets">
+                     <img src="icons/pets.png" alt="Allows pets icon" width="18" height="18">
+                    Allows pets
+                </button>
+            </div>
+        </div>
+
+    </div> <div class="modal-footer">
+        <button class="clear-all-btn">Clear all</button>
+        <button class="show-places-btn">Show 1,000+ places</button>
+    </div>
+
+</div>
+
+</div> 
 </body>
 </html>
