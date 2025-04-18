@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airbnb</title>
+    <style>
+        /* --- Basic Reset & Body Styles --- */
+        body, h1, h2, h3, p, div, nav, header, main, footer, button, input, span, label, a, img, figure, svg, ul, li {
+            margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #222222;
+        }
+        body { background-color: #ffffff; padding-top: 80px; /* Adjust if header height changes */ }
+        a { text-decoration: none; color: inherit; }
+        button { border: none; background: none; cursor: pointer; font-family: inherit; color: inherit; padding: 0; }
+        img { max-width: 100%; display: block; }
+        svg { display: block; /* Changed default */ }
+        ul { list-style: none; }
+
+        /* --- Header Styles --- */
+        .airbnb-header { display: flex; justify-content: space-between; align-items: center; height: 80px; padding: 0 80px; border-bottom: 1px solid transparent; background-color: #ffffff; position: fixed; top: 0; left: 0; width: 100%; z-index: 200; transition: border-color 0.2s ease; }
+        .airbnb-header.scrolled { border-bottom-color: #ebebeb; }
+        .header-logo a {
+            /* font-size: 1.8em; */ /* Removed */
+            /* font-weight: bold; */ /* Removed */
+            /* color: #FF385C; */ /* Removed */
+            display: block; /* Ensure link takes up space */
+            height: 58px; /* Match desired logo height */
+        }
+
+        /* ADDED: Style for the logo image itself */
+        #airbnb-logo-image {
+            height: 100%; /* Fill the height set on the anchor */
+            width: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below image */
+            color: #FF385C; /* Fallback or if SVG needed color */
+        }
+        .header-center-content { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; height: 100%; }
+        .header-main-nav { display: flex; gap: 5px; transition: opacity 0.2s ease, visibility 0.2s ease; }
+        .header-main-nav a { padding: 10px 12px; font-size: 1em; border-radius: 8px; cursor: pointer; transition: background-color 0.2s ease, font-weight 0.2s ease; }
+        .header-main-nav a.active { font-weight: 600; }
+        .header-main-nav a:not(.active):hover { background-color: #f7f7f7; }
+        .header-search-trigger { border: 1px solid #dddddd; border-radius: 40px; padding: 8px 8px 8px 24px; display: none; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05); transition: box-shadow 0.2s ease; background-color: #fff; cursor: pointer; }
+        .header-search-trigger span { padding: 0 16px; font-size: 0.9em; font-weight: 600; white-space: nowrap; }
+        .header-search-trigger span:not(:last-child)::after { content: ''; height: 24px; width: 1px; background-color: #dddddd; display: inline-block; vertical-align: middle; margin-left: 16px; }
+        .header-search-trigger .search-icon { background-color: #FF385C; color: white; border-radius: 50%; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; margin-left: 10px; font-weight: bold; font-size: 0.9em; }
+         .header-search-trigger .search-icon svg { /* Style for the new SVG */
+            display: block;
+            width: 12px;
+            height: 12px;
+            fill: #ffffff;
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+        .header-search-trigger:hover { box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+        .airbnb-header.scrolled .header-main-nav { opacity: 0; visibility: hidden; display: none; }
+        .airbnb-header.scrolled .header-search-trigger { display: flex; }
+        .header-right-nav { display: flex; align-items: center; gap: 8px; }
+        .header-right-nav .nav-link, .header-right-nav .globe-icon { padding: 12px; font-size: 0.9em; font-weight: 600; border-radius: 22px; cursor: pointer; transition: background-color 0.2s ease; white-space: nowrap; }
+        .header-right-nav .nav-link:hover, .header-right-nav .globe-icon:hover { background-color: #f7f7f7; }
+        /* Removed .globe-icon text style */
+        .header-right-nav .globe-icon svg { /* Style for the new SVG */
+             display: block;
+             width: 16px;
+             height: 16px;
+             fill: currentColor;
+        }
+        .user-menu { display: flex; align-items: center; border: 1px solid #dddddd; border-radius: 30px; padding: 5px 5px 5px 12px; gap: 10px; cursor: pointer; margin-left: 8px; transition: box-shadow 0.2s ease; }
+        .user-menu:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .user-menu .menu-icon svg { /* Style for the new SVG */
+            display: block;
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            stroke: currentColor; /* Added for hamburger */
+            stroke-width: 3; /* Added for hamburger */
+        }
+        .user-menu .user-icon {
+            background-color: #717171;
+            color: white; /* Keep color for SVG */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            /* Removed font styles */
+        }
+         .user-menu .user-icon svg { /* Style for the new SVG */
+             display: block;
+             width: 16px; /* Adjust size inside circle */
+             height: 16px;
+             fill: #ffffff; /* White icon */
+         }
+
+
+        /* --- Search Bar Styles --- */
+        .search-bar-container {
+            border: 1px solid #dddddd;
+            border-radius: 40px;
+            display: flex;
+            background-color: #ffffff;
+            width: auto;
+            max-width: 850px;
+            /* margin: 20px auto 20px auto; */ /* REMOVE original margins */
+            margin: 4px auto 0 auto;      /* ADDED: Reduce top margin significantly (e.g., 4px) */
+                                            /* Remove bottom margin (set to 0) */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            height: 66px;
+            align-items: stretch;
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s ease-out;
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+            position: relative;
+            z-index: 150;
+        }
+        .airbnb-header.scrolled + .search-bar-container {
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .search-section {
+            /* flex: 1; */ /* REMOVED Default equal sharing */
+            padding: 0 24px; /* Default padding */
+            height: 100%;
+            display: flex; /* Keep display: flex */
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 40px;
+            position: relative;
+            min-width: 0; /* Important for flex items */
+            transition: background-color 0.2s ease;
+
+            /* -- Define default flex properties -- */
+            flex-grow: 1; /* Default grow factor */
+            flex-shrink: 1; /* Default shrink factor */
+            flex-basis: 0%; /* Default basis */
+        }
+        .search-section.homes-only {
+            flex-grow: 0.65; /* ADJUST VALUE: Make smaller (less than 1) */
+            /* You might also want slightly less padding */
+            padding: 0 18px;
+        }
+        .search-section.experiences-only {
+            display: none; /* Hidden by default */
+            flex-grow: 0.65; /* Give similar smaller size when visible */
+            padding: 0 18px;
+        }
+        .search-section:hover { background-color: #ebebeb; }
+        .search-section:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 25%;
+            bottom: 25%;
+            width: 1px;
+            background-color: #dddddd;
+        }
+        .search-section label {
+            display: block;
+            font-size: 0.75em;    /* Small font size (e.g., 12px) */
+            /* font-weight: 800; */ /* Current, likely too bold */
+            font-weight: 600;     /* CHANGE: Use Semibold (or try 700 for Bold) */
+            color: #222222;      /* Ensure black color */
+            margin-bottom: 2px;   /* Space below label */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;     /* CHANGE: Tighter line height */
+        }
+        .search-section span {
+            display: block;
+            font-size: 0.875em;   /* Slightly larger size (e.g., 14px) */
+            font-weight: 400;     /* Ensure Normal weight */
+            color: #717171;      /* Grey color */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;     /* CHANGE: Tighter line height */
+        }
+        .search-section.search-action {
+            display: flex; /* Use flex for internal layout */
+            flex-direction: row; /* Align items horizontally */
+            align-items: center; /* Center items vertically */
+            flex-grow: 1.1;   /* ADJUST VALUE: Make slightly larger (greater than 1) */
+            flex-basis: auto; /* Let content influence size slightly */
+            padding-left: 24px; /* Specific padding */
+            padding-right: 10px; /* Specific padding */
+            justify-content: flex-start; /* Align internal content to start */
+            gap: 10px; /* Space between text and button - ADJUST if needed */
+        }
+        .search-section.search-action::after { display: none !important; }
+        .search-section.search-action .text-content {
+            flex-grow: 1; /* Make sure text block takes available space */
+            min-width: 0; /* ADDED: Good practice for flex text containers */
+        }
+        .search-section.search-action:hover { background-color: transparent; }
+        .search-section.search-action .text-content:hover {
+            background-color: #ebebeb; /* Apply hover to text only */
+        }
+        .search-button {
+            background: linear-gradient(to right, #E61E4D 0%, #E31C5F 50%, #D70466 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            min-width: 50px; /* Fixed size */
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            /* margin-left: 10px; */ /* Removed - parent gap controls spacing */
+            transition: background 0.2s ease;
+            font-size: 1.2em; /* Relates to icon size potentially */
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+        .search-button svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: white;
+            stroke-width: 4;
+            display: block;
+            overflow: visible;
+        }
+        .search-button:hover {
+            background: linear-gradient(to right, #E31C5F 0%, #D70466 50%, #C20058 100%);
+        }
+        .search-bar-container.mode-homes .homes-only { display: flex; }
+        .search-bar-container.mode-homes .experiences-only { display: none; }
+
+        .search-bar-container.mode-experiences .homes-only { display: none; }
+        .search-bar-container.mode-experiences .experiences-only { display: flex; }
+
+
+
+        /* --- Category Filter Bar Styles --- */
+        .filter-container {
+            display: flex;
+            align-items: center;
+            padding: 15px 80px 15px 80px; /* Keep existing padding */
+            gap: 0;
+            position: sticky;
+            top: 80px; /* Height of header */
+            background-color: #ffffff;
+            z-index: 100;
+
+            /* --- ADDED STYLES --- */
+            border-top: 1px solid #ebebeb; /* The faint horizontal line */
+            margin-top: 24px; 
+            margin-bottom: 0;/* Space between search bar and this line/filter container */
+                            /* Adjust 24px as needed (e.g., 16px, 20px) */
+            /* --- END ADDED STYLES --- */
+        }
+        .scroll-arrow.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none; /* Prevent clicking hidden arrows */
+            cursor: default;
+            transition: opacity 0.2s ease, visibility 0.2s ease; /* Optional smooth fade */
+        }
+        .scroll-arrow { border: 1px solid #ccc; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: #555; background-color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); flex-shrink: 0; z-index: 10; }
+        .scroll-arrow:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        .scroll-arrow.left { margin-right: 15px; }
+        .scroll-arrow.right { margin-left: 15px; }
+        .category-filter-wrapper { flex-grow: 1; overflow: hidden; }
+        .category-filter { display: flex; gap: 30px; padding-bottom: 10px; width: max-content; }
+        .category-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding-bottom: 10px; border-bottom: 2px solid transparent; color: #717171; white-space: nowrap; transition: color 0.2s ease, border-bottom-color 0.2s ease, opacity 0.2s ease; opacity: 0.7; }
+        .category-item svg {
+            width: 24px;
+            height: 24px;
+            /* Let individual SVGs define fill/stroke or use currentColor if consistent */
+            /* Example default for line icons: */
+             fill: none;
+             stroke: currentColor;
+             stroke-width: 1.5;
+        }
+        .category-item img {
+                width: 24px;
+                height: 24px;
+                object-fit: contain; /* Or 'cover', depending on desired look */
+            }
+        .category-item span { font-size: 0.75em; font-weight: 600; }
+        .category-item.active { color: #222222; border-bottom-color: #222222; opacity: 1; }
+         .category-item.active svg {
+             /* Example for line icons: */
+             stroke-width: 2; /* Make active icon bolder */
+             /* Example for fill icons: */
+             /* fill: #222222; */
+         }
+        .category-item:hover { color: #222222; border-bottom-color: #dddddd; opacity: 1; }
+        .category-item.active:hover { border-bottom-color: #222222; }
+        .filter-controls { display: flex; align-items: center; gap: 15px; flex-shrink: 0; margin-left: 20px; }
+        .filters-button { border: 1px solid #dddddd; border-radius: 12px; padding: 10px 15px; font-size: 0.8em; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .filters-button svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor; /* Assuming filter icon is filled */
+            stroke: none;
+         }
+        .filters-button:hover { border-color: #b0b0b0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .tax-toggle { display: flex; align-items: center; gap: 10px; border: 1px solid #dddddd; border-radius: 12px; padding: 10px 15px; font-size: 0.8em; font-weight: 600; white-space: nowrap; cursor: pointer;}
+        .tax-toggle:hover { border-color: #b0b0b0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .toggle-switch { width: 40px; height: 24px; background-color: #b0b0b0; border-radius: 12px; position: relative; transition: background-color 0.3s ease; flex-shrink: 0; }
+        .toggle-switch::after { content: ''; position: absolute; width: 20px; height: 20px; background-color: white; border-radius: 50%; top: 2px; left: 2px; transition: left 0.3s ease, transform 0.3s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .toggle-switch.on { background-color: #222222; }
+        .toggle-switch.on::after { left: 18px; transform: translateX(0); }
+
+
+        /* --- Listing Grid Styles --- */
+         /* main { 
+            padding-top: 24px; 
+        } */
+        .listing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 40px 24px;
+            padding: 0 80px 40px 80px;
+            margin-top: 0; /* ADDED: Ensure no space above grid */
+        }
+        .listing-card { cursor: pointer; width: 100%; }
+
+        /* --- Listing Image Container (Base for Carousel) --- */
+        .listing-image-container {
+            position: relative;
+            margin-bottom: 12px;
+            overflow: hidden; /* Crucial for carousel */
+            border-radius: 12px;
+            aspect-ratio: 1 / 0.95;
+            background-color: #eee; /* Background while images load */
+        }
+
+        /* --- Carousel Styles --- */
+        .carousel {
+            position: relative; /* Contains buttons and dots */
+            width: 100%;
+            height: 100%;
+        }
+        .carousel-slides {
+            display: flex;
+            height: 100%;
+            transition: transform 0.3s ease-in-out; /* Slide transition */
+        }
+        .carousel-slide {
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.2s ease, transform 0.1s ease;
+            z-index: 10;
+        }
+        .listing-image-container:hover .carousel-btn {
+            opacity: 1; /* Show buttons on hover */
+        }
+        .carousel-btn.prev { left: 10px; }
+        .carousel-btn.next { right: 10px; }
+        .carousel-btn:hover { background-color: white; }
+        .carousel-btn:active { transform: translateY(-50%) scale(0.95); }
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .carousel-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            opacity: 0; /* Hide dots by default */
+        }
+        .listing-image-container:hover .carousel-dots span {
+             opacity: 1; /* Show dots on hover */
+        }
+        .carousel-dots span.active {
+            background-color: white;
+            transform: scale(1.3);
+        }
+
+        /* --- Other Card Styles --- */
+        .heart-icon { position: absolute; top: 12px; right: 12px; font-size: 1.5em; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.4); background: none; border: none; padding: 5px; z-index: 5; /* Below buttons */ }
+        .heart-icon:hover { transform: scale(1.1); }
+        .badge { position: absolute; top: 12px; left: 12px; background-color: rgba(255, 255, 255, 0.95); color: #222; padding: 4px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; z-index: 5; }
+        .listing-details { font-size: 0.95em; line-height: 1.4; }
+        .listing-location-rating { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+        .listing-location-rating .location { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+        .listing-location-rating .rating { font-weight: 400; white-space: nowrap; flex-shrink: 0; }
+        .rating .star { color: #222; font-size: 0.9em; margin-right: 2px; }
+        .listing-description, .listing-dates, .listing-price { color: #717171; font-size: 0.95em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+        .listing-price { color: #222; margin-top: 6px; }
+        .listing-price strong { font-weight: 600; color: #222; }
+        .listing-price .price-qualifier { color: #717171; font-weight: 400; }
+
+        /* --- Footer Styles --- */
+        .site-footer {
+            background-color: #f7f7f7; padding: 48px 80px 0 80px; border-top: 1px solid #dddddd; color: #222; font-size: 0.9em;
+        }
+        .inspiration-footer { margin-bottom: 48px; padding-bottom: 48px; border-bottom: 1px solid #dddddd; }
+        .inspiration-footer h2 { font-size: 1.4em; margin-bottom: 24px; }
+        .inspiration-tabs { margin-bottom: 24px; }
+        .inspiration-tabs button { padding: 10px 16px; margin-right: 8px; border: none; background: none; color: #717171; font-weight: 600; border-bottom: 2px solid transparent; transition: color 0.2s, border-bottom-color 0.2s; cursor: pointer; }
+        .inspiration-tabs button.active, .inspiration-tabs button:hover { color: #222; border-bottom-color: #222; }
+        .inspiration-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px 32px; }
+        .inspiration-grid .location-item a { display: block; font-weight: 600; margin-bottom: 4px; }
+         .inspiration-grid .location-item a:hover { text-decoration: underline; }
+        .inspiration-grid .location-item span { font-size: 0.9em; color: #717171; }
+        .inspiration-grid .location-item .show-more-link { font-weight: 600; text-decoration: underline; cursor: pointer; }
+        .main-footer { padding-bottom: 24px; }
+        .footer-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; padding-bottom: 48px; }
+        .footer-column h3 { font-size: 0.9em; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; }
+        .footer-column ul li { margin-bottom: 12px; }
+        .footer-column ul li a { color: #222; font-size: 0.9em; }
+         .footer-column ul li a:hover { text-decoration: underline; }
+        .footer-bottom-bar { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; border-top: 1px solid #dddddd; font-size: 0.9em; flex-wrap: wrap; gap: 15px; }
+        .footer-bottom-left { display: flex; flex-wrap: wrap; gap: 5px 15px; align-items: center; color: #222; }
+        .footer-bottom-left span, .footer-bottom-left a { white-space: nowrap; }
+         .footer-bottom-left a:hover { text-decoration: underline; }
+         .footer-bottom-left .separator { padding: 0 5px; }
+        .footer-bottom-right { display: flex; align-items: center; gap: 20px; }
+        .footer-bottom-right button, .footer-bottom-right a { display: flex; align-items: center; gap: 8px; font-weight: 600; background: none; border: none; cursor: pointer; }
+         .footer-bottom-right button svg, /* Style for new SVGs */
+         .footer-bottom-right a svg {
+             display: block;
+             width: 18px;
+             height: 18px;
+             fill: currentColor;
+         }
+         .footer-bottom-right button:hover, .footer-bottom-right a:hover { text-decoration: underline; }
+         /* Removed .icon-placeholder style */
+
+    </style>
+</head>
+<body>
+
+    <header class="airbnb-header" id="page-header">
+        <div class="header-logo">
+            <a href="#">
+                <img src="https://logos-world.net/wp-content/uploads/2020/10/Airbnb-Logo-2014.png" alt="Airbnb logo" id="airbnb-logo-image">
+            </a>
+        </div>
+         <div class="header-center-content">
+             <nav class="header-main-nav"> <a href="#" id="nav-homes" class="active">Homes</a> <a href="#" id="nav-experiences">Experiences</a> </nav>
+             <div class="header-search-trigger">
+                 <span>Anywhere</span>
+                 <span>Any week</span>
+                 <span>Add guests</span>
+                 <button class="search-icon" aria-label="Search">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" role="presentation" focusable="false" style="display: block; fill: none; height: 12px; width: 12px; stroke: currentcolor; stroke-width: 5.33333; overflow: visible;"><path fill="none" d="M13 24a11 11 0 1 0 0-22 11 11 0 0 0 0 22zm8-3 9 9"></path></svg>
+                 </button>
+             </div>
+         </div>
+         <div class="header-right-nav">
+             <a href="#" class="nav-link">Airbnb your home</a>
+             <button class="globe-icon" aria-label="Choose a language and currency">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 16px; width: 16px;">
+                     <path d="M8 .25a7.75 7.75 0 1 0 0 15.5 7.75 7.75 0 0 0 0-15.5zM.75 8a7.25 7.25 0 1 1 14.5 0 7.25 7.25 0 0 1-14.5 0z"></path>
+                     <path d="M8 1.5A6.5 6.5 0 1 0 8 14.5 6.5 6.5 0 0 0 8 1.5zM1.88 8a6.12 6.12 0 1 1 12.24 0 6.12 6.12 0 0 1-12.24 0zM12 11a1 1 0 0 0 1-1v-.75a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.75a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-.75a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25V10a1 1 0 0 0 1 1h6zM11 5a1 1 0 0 0-1 1v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a2 2 0 0 1 2-2h1.5a2 2 0 0 1 2 2v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a1 1 0 0 0-1-1H11zM5 5a1 1 0 0 0-1 1v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a2 2 0 0 1 2-2h1.5a2 2 0 0 1 2 2v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a1 1 0 0 0-1-1H5z"></path>
+                 </svg>
+             </button>
+             <button class="user-menu" aria-label="Main navigation menu">
+                 <span class="menu-icon">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" role="presentation" focusable="false" style="display: block; fill: none; height: 16px; width: 16px; stroke: currentcolor; stroke-width: 3; overflow: visible;">
+                         <g fill="none"><path d="M2 16h28M2 24h28M2 8h28"></path></g>
+                     </svg>
+                 </span>
+                 <span class="user-icon">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 16px; width: 16px; fill: currentcolor;">
+                         <path d="M16 .7C7.56.7.7 7.56.7 16S7.56 31.3 16 31.3 31.3 24.44 31.3 16 16 .7 16 .7zm0 2.7a12.6 12.6 0 1 1 0 25.2 12.6 12.6 0 0 1 0-25.2zm0 19.6a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm0-11.6a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2z"></path>
+                     </svg>
+                 </span>
+             </button>
+         </div>
+    </header>
+
+    <div class="search-bar-container mode-homes" id="search-bar">
+        <div class="search-section where-section"> <label>Where</label> <span>Search destinations</span> </div>
+         <div class="search-section homes-only"> <label>Check in</label> <span>Add dates</span> </div>
+         <div class="search-section homes-only"> <label>Check out</label> <span>Add dates</span> </div>
+         <div class="search-section experiences-only"> <label>Date</label> <span>Add dates</span> </div>
+         <div class="search-section search-action">
+             <div class="text-content"> <label>Who</label> <span>Add guests</span> </div>
+             <button class="search-button" aria-label="Search">
+                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style="display: block; fill: none; height: 16px; width: 16px; stroke: currentcolor; stroke-width: 4; overflow: visible;"><path fill="none" d="M13 24a11 11 0 1 0 0-22 11 11 0 0 0 0 22zm8-3 9 9"></path></svg>
+             </button>
+         </div>
+    </div>
+
+     <div class="filter-container" id="filter-container">
+         <button class="scroll-arrow left" aria-label="Scroll left">‹</button>
+          <div class="category-filter-wrapper">
+              <nav class="category-filter" id="category-filter-items">
+                <div class="category-item active">
+                    <img src="https://a0.muscache.com/pictures/50861fca-582c-4bcc-89d3-857fb7ca6528.jpg" alt="Design category icon">
+                    <span>Design</span>
+                </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/im/pictures/mediaverse/category_icon/original/3e5243c8-4d15-4c6b-97e3-7ba2bb7bb880.png" alt="Design category icon">
+                    <span>Icons</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/6ad4bd95-f086-437d-97e3-14d12155ddfe.jpg" alt="Design category icon">
+                    <span>Countryside</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/ee9e2a40-ffac-4db9-9080-b351efc3cfc4.jpg" alt="Design category icon">
+                    <span>Tropical</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/1d477273-96d6-4819-9bda-9085f809dad3.jpg" alt="Design category icon">
+                    <span>A-frames</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/c0a24c04-ce1f-490c-833f-987613930eca.jpg" alt="Design category icon">
+                    <span>National parks</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/78ba8486-6ba6-4a43-a56d-f556189193da.jpg" alt="Design category icon">
+                    <span>Mansions</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/3fb523a0-b622-4368-8142-b5e03df7549b.jpg" alt="Design category icon">
+                    <span>Amazing pools</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/732edad8-3ae0-49a8-a451-29a8010dcc0c.jpg" alt="Design category icon">
+                    <span>Cabins</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/c5a4f6fc-c92c-4ae8-87dd-57f1ff1b89a6.jpg" alt="Design category icon">
+                    <span>OMG!</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/3b1eb541-46d9-4bef-abc4-c37d77e3c21b.jpg" alt="Design category icon">
+                    <span>Amazing views</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/9a2ca4df-ee90-4063-b15d-0de7e4ce210a.jpg" alt="Design category icon">
+                    <span>Off-the-grid</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/1b6a8b70-a3b6-48b5-88e1-2243d9172c06.jpg" alt="Design category icon">
+                    <span>Castles</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/3271df99-f071-4ecf-9128-eb2d2b1f50f0.jpg" alt="Design category icon">
+                    <span>Tiny Homes</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/bcd1adc0-5cee-4d7a-85ec-f6730b0f8d0c.jpg" alt="Design category icon">
+                    <span>Beachfront</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/3b1eb541-46d9-4bef-abc4-c37d77e3c21b.jpg" alt="Design category icon">
+                    <span>Rooms</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/aaa02c2d-9f0d-4c41-878a-68c12ec6c6bd.jpg" alt="Design category icon">
+                    <span>Farms</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/31c1d523-cc46-45b3-957a-da76c30c85f9.jpg" alt="Design category icon">
+                    <span>Camper vans</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/4d4a4eba-c7e4-43eb-9ce2-95e1d200d10e.jpg" alt="Design category icon">
+                    <span>Treehouses</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/8e507f16-4943-4be9-b707-59bd38d56309.jpg" alt="Design category icon">
+                    <span>Islands</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/10ce1091-c854-40f3-a2fb-defc2995bcaf.jpg" alt="Design category icon">
+                    <span>Beach</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/8b44f770-7156-4c7b-b4d3-d92549c8652f.jpg" alt="Design category icon">
+                    <span>Arctic</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/677a041d-7264-4c45-bb72-52bff21eb6e8.jpg" alt="Design category icon">
+                    <span>Lakefront</span>
+                  </div>
+                  <div class="category-item">
+                    <img src="https://a0.muscache.com/pictures/ca25c7f3-0d1f-432b-9efa-b9f5dc6d8770.jpg" alt="Design category icon">
+                    <span>Camping</span>
+                  </div>
+                 </nav>
+          </div>
+         <button class="scroll-arrow right" aria-label="Scroll right">›</button>
+         <div class="filter-controls">
+             <button class="filters-button">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 16px; width: 16px; fill: currentcolor;">
+                     <path d="M5 8c1.306 0 2.418.835 2.83 2H14v2H7.829A3.001 3.001 0 1 1 5 8zm0 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6-8a3 3 0 1 1-2.829 4H2V4h6.17A3.001 3.001 0 0 1 11 2zm0 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                 </svg>
+                 Filters
+             </button>
+             <div class="tax-toggle" id="tax-toggle-container">
+                 <span id="tax-toggle-label">Display total before taxes</span>
+                 <div class="toggle-switch" id="tax-toggle-switch"></div>
+             </div>
+         </div>
+      </div>
+
+    <main> <div class="listing-grid">
+
+            <div class="listing-card">
+                 <div class="listing-image-container">
+                     <div class="carousel">
+                         <div class="carousel-slides">
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-617063718566302384/original/717a4c2d-e8a9-4798-8378-0d878e0ed56e.jpeg?im_w=720" alt="Listing 1 - View 1"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-617063718566302384/original/da4846db-6f66-49b0-88c1-0d387ca67998.jpeg?im_w=720" alt="Listing 1 - View 2"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-617063718566302384/original/e0020a05-0a84-48dd-b311-768e14aeeb51.jpeg?im_w=720" alt="Listing 1 - View 3"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-617063718566302384/original/edbc207a-ad31-41ab-8fc9-e1f020f83d3a.jpeg?im_w=720" alt="Listing 1 - View 4"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-617063718566302384/original/5f384e11-6d4a-475f-9561-ffe1327edc71.jpeg?im_w=720" alt="Listing 1 - View 4"></div>
+                         </div>
+                         <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                         <button class="carousel-btn next" aria-label="Next image">›</button>
+                         <div class="carousel-dots"></div>
+                     </div>
+                     <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                 </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Hua Hin, Thailand</span> <span class="rating"><span class="star">★</span> 4.89</span> </div> <div class="listing-description">2,304 kilometres away</div> <div class="listing-dates">20-25 Apr</div> <div class="listing-price" data-base-price="32193"><strong>₹32,193</strong> <span class="price-qualifier">night</span></div> </div>
+            </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                     <div class="carousel">
+                         <div class="carousel-slides">
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/14152ff7-28fa-48cc-9c90-ac787fb5bb6b.jpg?im_w=720" alt="Listing 2 - View 1"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/miso/Hosting-3251026/original/825da780-127b-4155-982b-2a958b436eb2.jpeg?im_w=720" alt="Listing 2 - View 2"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/a246b08e-5a1d-46f9-a75a-c4392fd670a7.jpg?im_w=720" alt="Listing 2 - View 3"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/ea3a10aa-645f-4754-a4a2-9a4920b2c17b.jpg?im_w=720" alt="Listing 2 - View 4"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/7c6b0039-39d1-4d45-b405-898481cd12c2.jpg?im_w=720" alt="Listing 2 - View 5"></div>
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/miso/Hosting-3251026/original/760443f6-8e95-41cc-a11b-8b55b185ba6b.jpeg?im_w=720" alt="Listing 2 - View 6"></div>
+                         </div>
+                         <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                         <button class="carousel-btn next" aria-label="Next image">›</button>
+                         <div class="carousel-dots"></div>
+                     </div>
+                     <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                 </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ko Samui, Thailand</span> <span class="rating"><span class="star">★</span> 4.99</span> </div> <div class="listing-description">Designed by Marc Gerritsen</div> <div class="listing-dates">4-9 Jun</div> <div class="listing-price" data-base-price="18939"><strong>₹18,939</strong> <span class="price-qualifier">night</span></div> </div>
+             </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-669910302099658530/original/dfc381b0-9205-4260-b11c-cd89d7936620.jpeg?im_w=720" alt="Listing 3 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-669910302099658530/original/4afb1dfb-0204-47a5-9f1e-f9aecef7f595.jpeg?im_w=720" alt="Listing 3 - View 2"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-669910302099658530/original/147465a5-fe26-44fc-864e-2fd7503a52eb.jpeg?im_w=720" alt="Listing 3 - View 3"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-669910302099658530/original/f1939ca3-f237-46e3-b610-fe95bf3caf95.jpeg?im_w=720" alt="Listing 3 - View 4"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-669910302099658530/original/6d121740-4a15-49bf-be2c-d07e82a3b28b.jpeg?im_w=720" alt="Listing 3 - View 3"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-669910302099658530/original/3b1f75c7-8c52-4b03-a301-c52c347a734e.jpeg?im_w=720" alt="Listing 3 - View 4"></div>
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                      <span class="badge">Guest favourite</span>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Lovina, Indonesia</span> <span class="rating"><span class="star">★</span> 4.9</span> </div> <div class="listing-description">4,856 kilometres away</div> <div class="listing-dates">25-30 Apr</div> <div class="listing-price" data-base-price="30057"><strong>₹30,057</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-797659157916763175/original/abeb45aa-852a-414a-85a2-6e59de118119.jpeg?im_w=720" alt="Listing 4 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-797659157916763175/original/97cdf537-fe51-493f-a4a5-d64150d824ed.jpeg?im_w=720" alt="Listing 4 - View 2"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-797659157916763175/original/2322412a-1d9a-44ec-9c20-cbf290c463b8.jpeg?im_w=720" alt="Listing 4 - View 3"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-797659157916763175/original/5e687128-ad60-4e41-b195-080e7ac41a00.jpeg?im_w=720" alt="Listing 4 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-797659157916763175/original/bf193c50-64c6-4397-b07f-78b9c9ef7b14.jpeg?im_w=720" alt="Listing 4 - View 2"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-797659157916763175/original/bb91b348-75e3-42c5-8509-70968ea0b0f3.jpeg?im_w=720" alt="Listing 4 - View 3"></div>
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ho Chi Minh, Vietnam</span> <span class="rating"><span class="star">★</span> 4.81</span> </div> <div class="listing-description">3,129 kilometres away</div> <div class="listing-dates">8-13 May</div> <div class="listing-price" data-base-price="15208"><strong>₹15,208</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-26167925/original/567308ff-a299-44d2-924c-e66becc8e8c1.jpeg?im_w=720" alt="Listing 5 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-26167925/original/543b4d12-14d4-4adf-b222-54f0092cd032.jpeg?im_w=720" alt="Listing 5 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-26167925/original/c666acc9-ac34-4b94-a78b-f718ea44db42.jpeg?im_w=720" alt="Listing 5 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-26167925/original/385e6a47-ed06-47a0-b324-93de7fb9cf29.jpeg?im_w=720" alt="Listing 5 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-26167925/original/527f5fa6-9f63-4617-b3f0-492e7a6af826.jpeg?im_w=720" alt="Listing 5 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-26167925/original/b68f89a9-facb-4bd0-b2cb-d7d3b9307aa5.jpeg?im_w=720" alt="Listing 5 - View 2"></div>
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Pererenan, Indonesia</span> <span class="rating"><span class="star">★</span> 4.89</span> </div> <div class="listing-description">Designed by Alexis Dornier</div> <div class="listing-dates">25-30 Apr</div> <div class="listing-price" data-base-price="18847"><strong>₹18,847</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                       <div class="carousel">
+                           <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-53083913/original/4944ed3f-ee5f-4765-993d-5e91d2dc6745.jpeg?im_w=720" alt="Listing 6 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-53083913/original/829d28d1-7e13-4e8a-bf48-ef9f11fc527f.jpeg?im_w=720" alt="Listing 6 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-53083913/original/6586e131-d4ec-4d60-8ab6-56cd005a71b6.jpeg?im_w=720" alt="Listing 6 - View 3"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-53083913/original/cc6dc2bf-43b1-4105-9228-d4a3cec5956a.jpeg?im_w=720" alt="Listing 6 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-53083913/original/be73dedf-4151-48c4-b049-217b74213886.jpeg?im_w=720" alt="Listing 6 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-53083913/original/492173be-d3c3-4d73-876c-124b391dd1fa.jpeg?im_w=720" alt="Listing 6 - View 3"></div>
+                           </div>
+                           <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                           <button class="carousel-btn next" aria-label="Next image">›</button>
+                           <div class="carousel-dots"></div>
+                       </div>
+                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                       <span class="badge">Guest favourite</span>
+                   </div>
+                   <div class="listing-details"> <div class="listing-location-rating"> <span class="location">อำเภอถลาง, Thailand</span> <span class="rating"><span class="star">★</span> 4.88</span> </div> <div class="listing-description">Modern pool villa</div> <div class="listing-dates">1-6 May</div> <div class="listing-price" data-base-price="25000"><strong>₹25,000</strong> <span class="price-qualifier">night</span></div> </div>
+                </div>
+
+             <div class="listing-card">
+                 <div class="listing-image-container">
+                     <div class="carousel">
+                         <div class="carousel-slides">
+                             <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-820733145568572294/original/0c68a135-b239-4a95-b3d6-ad89816cd922.jpeg?im_w=720" alt="Listing 7 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-820733145568572294/original/4cc34170-ec04-4608-b6d1-0ae3c28981b4.jpeg?im_w=720" alt="Listing 7 - View 2"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-820733145568572294/original/c27f11a3-fe81-469f-a76c-5e4a0c765ec2.jpeg?im_w=720" alt="Listing 7 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-820733145568572294/original/bc397f73-b592-4d05-8219-355b4cb52f93.jpeg?im_w=720" alt="Listing 7 - View 2"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-820733145568572294/original/780509cd-5017-483f-83b5-ed02fdb50e7c.jpeg?im_w=720" alt="Listing 7 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-820733145568572294/original/a2e89ea1-b220-4150-aa67-dd71c7b05d2d.jpeg?im_w=720" alt="Listing 7 - View 2"></div>
+                         </div>
+                         <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                         <button class="carousel-btn next" aria-label="Next image">›</button>
+                         <div class="carousel-dots"></div>
+                     </div>
+                     <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                     <span class="badge">Guest favourite</span>
+                 </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Phuket, Thailand</span> <span class="rating"><span class="star">★</span> 4.95</span> </div> <div class="listing-description">Ocean view apartment</div> <div class="listing-dates">10-15 May</div> <div class="listing-price" data-base-price="20000"><strong>₹20,000</strong> <span class="price-qualifier">night</span></div> </div>
+             </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/899e58fd-062d-4b83-a6f6-d55f5ade03d7.jpg?im_w=720" alt="Listing 8 - View 1"></div>
+                                <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/04e65d06-482e-44d9-a327-aaa87dc34229.jpg?im_w=720" alt="Listing 8 - View 2"></div>
+                                  <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/5d498612-aded-4885-8248-90c6e43e6a1f.jpg?im_w=720" alt="Listing 8 - View 3"></div>
+                                  <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/135ace57-2f39-4819-8157-815eb1bf2df6.jpg?im_w=720" alt="Listing 8 - View 1"></div>
+                                  <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/72914aad-ad49-498d-9222-d224133d5684.jpg?im_w=720" alt="Listing 8 - View 2"></div>
+                                   <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/30f80e38-fe21-468f-a2d1-60d200ca11cc.jpg?im_w=720" alt="Listing 8 - View 3"></div>
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ubud, Indonesia</span> <span class="rating"><span class="star">★</span> 4.70</span> </div> <div class="listing-description">Jungle view villa</div> <div class="listing-dates">18-23 May</div> <div class="listing-price" data-base-price="19500"><strong>₹19,500</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTIyNzIzOTcyNDg2Njc3Nzg4Mw%3D%3D/original/eaa49fa5-8c47-4f5f-91e7-3a7072feba3b.jpeg?im_w=720" alt="Listing 9 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-1227239724866777883/original/4086ae2b-84a1-4117-a004-4fa4ae2af664.jpeg?im_w=720" alt="Listing 9 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-1227239724866777883/original/51199c92-ad75-4d42-9930-9bf7c0ef5892.jpeg?im_w=720" alt="Listing 9 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTIyNzIzOTcyNDg2Njc3Nzg4Mw%3D%3D/original/da110b5f-0e45-4179-a71f-84535b4b20fb.jpeg?im_w=720" alt="Listing 9 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-1227239724866777883/original/fb9c45e3-9feb-469b-832b-91419ffd9b27.jpeg?im_w=720" alt="Listing 9 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-1227239724866777883/original/5315a2e9-f117-4750-948b-0c41e62c914c.jpeg?im_w=720" alt="Listing 9 - View 2"></div>
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Kyoto, Japan</span> <span class="rating"><span class="star">★</span> 4.92</span> </div> <div class="listing-description">Traditional Machiya House</div> <div class="listing-dates">1-6 Jun</div> <div class="listing-price" data-base-price="22000"><strong>₹22,000</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-878101686473328377/original/02373dd0-bb8b-4a42-ab45-2ae111caa205.jpeg?im_w=720" alt="Listing 10 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/193e8dd3-302e-4e2b-8aed-a07ffdc3e365.jpg?im_w=720" alt="Listing 10 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/22c9b80b-f6fa-4aa7-b8e6-077d6ee0e125.jpg?im_w=720" alt="Listing 10 - View 3"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/miso/Hosting-878101686473328377/original/03abdff1-c016-4fc1-a100-133798e132c0.jpeg?im_w=720" alt="Listing 10 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/miso/Hosting-878101686473328377/original/b5add3c8-bebe-45b2-ba62-ab712dab847b.jpeg?im_w=720" alt="Listing 10 - View 2"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/miso/Hosting-878101686473328377/original/aaa72da0-288c-44b3-9395-a184f4afbd7a.jpeg?im_w=720" alt="Listing 10 - View 3"></div>
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Siem Reap, Cambodia</span> <span class="rating"><span class="star">★</span> 4.85</span> </div> <div class="listing-description">Colonial style villa with pool</div> <div class="listing-dates">5-10 Jun</div> <div class="listing-price" data-base-price="17500"><strong>₹17,500</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/hosting/Hosting-774328770611431627/original/9eb48fda-4e12-4cba-9122-284f5290fd8b.jpeg?im_w=720" alt="Listing 11 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/hosting/Hosting-774328770611431627/original/05f021f0-52ea-4d01-970b-04374cac8945.jpeg?im_w=720" alt="Listing 11 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/hosting/Hosting-774328770611431627/original/328ec4dc-3205-4da7-9549-e8c5f360115a.jpeg?im_w=720" alt="Listing 11 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/hosting/Hosting-774328770611431627/original/90dd9273-71f8-4230-9d74-b9e41d48fd28.jpeg?im_w=720" alt="Listing 11 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/hosting/Hosting-774328770611431627/original/56505037-ebe2-4a8c-9b6b-9d409aa66884.jpeg?im_w=720" alt="Listing 11 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/ml/photo_enhancement/pictures/hosting/Hosting-774328770611431627/original/03aba641-1276-4705-bbbb-d9d940b8eda5.jpeg?im_w=720" alt="Listing 11 - View 1"></div>
+
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                         <span class="badge">Guest favourite</span>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Kuala Lumpur, Malaysia</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">Overwater Bungalow</div> <div class="listing-dates">15-20 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/2a1724ca-c902-4c82-b64a-215c2fd1e414.jpg?im_w=720" alt="Listing 12 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/fc72fed1-4a12-412a-b7a8-57f8a2711a91.jpg?im_w=720" alt="Listing 12 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NDIzMDU3NDQ%3D/original/395b6468-b38d-48eb-80ef-80c25b055c62.jpeg?im_w=720" alt="Listing 12 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NDIzMDU3NDQ%3D/original/9fd952fa-984b-4102-8360-c64404b6195a.jpeg?im_w=720" alt="Listing 12 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NDIzMDU3NDQ%3D/original/8f1381a6-2349-4ebf-aff3-d8dbd81a846d.jpeg?im_w=720" alt="Listing 12 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NDIzMDU3NDQ%3D/original/bd2d7887-4ecb-4072-8890-12c81ee88e09.jpeg?im_w=720" alt="Listing 12 - View 1"></div>
+
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ko Samui, Thailand</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">3,129 kilometres away</div> <div class="listing-dates">16-19 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA2MDcwNjk0NTg1NTA4MjU3MA%3D%3D/original/078fe674-8c8a-47b2-8778-1238ca8ad8f7.jpeg?im_w=720" alt="Listing 13 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA2MDcwNjk0NTg1NTA4MjU3MA%3D%3D/original/8a0043eb-bdbd-4e66-b694-d4a26ee9efc0.jpeg?im_w=720" alt="Listing 13 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA2MDcwNjk0NTg1NTA4MjU3MA%3D%3D/original/1e6861d8-6007-483b-beb3-f65f92bf84a0.jpeg?im_w=720" alt="Listing 13 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA2MDcwNjk0NTg1NTA4MjU3MA%3D%3D/original/436f92e4-cbf6-459a-993b-4a9b1b73cec4.jpeg?im_w=720" alt="Listing 13 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA2MDcwNjk0NTg1NTA4MjU3MA%3D%3D/original/08bb1be5-6aef-4280-a299-bec0dcb4ddd8.jpeg?im_w=720" alt="Listing 13 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA2MDcwNjk0NTg1NTA4MjU3MA%3D%3D/original/dff91412-7e8a-4fa8-b6bd-0c487c56cf04.jpeg?im_w=720" alt="Listing 13 - View 1"></div>
+
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Watthana, Thailand</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">4,225 kilometres away</div> <div class="listing-dates">17-22 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                  <div class="listing-image-container">
+                      <div class="carousel">
+                          <div class="carousel-slides">
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-52539316/original/942e2903-4f17-4753-8f91-09dcc0617e64.jpeg?im_w=720" alt="Listing 14 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-52539316/original/07c42220-e72b-48de-9caf-f2008f7a21bf.jpeg?im_w=720" alt="Listing 14 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-52539316/original/c61babd8-44e1-40eb-a53b-8a4b7b555bdb.jpeg?im_w=720" alt="Listing 14 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-52539316/original/8a55a3cb-ae29-4af6-ac28-7cc88f2e77c4.jpeg?im_w=720" alt="Listing 14 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-52539316/original/927e01b9-a55b-403e-b221-717601c5d848.jpeg?im_w=720" alt="Listing 14 - View 1"></div>
+                               <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/miso/Hosting-52539316/original/8f4a5be5-87f5-48cb-a27b-c629db5a3f64.jpeg?im_w=720" alt="Listing 14 - View 1"></div>
+                          </div>
+                          <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                          <button class="carousel-btn next" aria-label="Next image">›</button>
+                          <div class="carousel-dots"></div>
+                      </div>
+                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                  </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ha Long, Vietnam</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">2,723 kilometres away</div> <div class="listing-dates">25-30 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+              </div>
+
+             <div class="listing-card">
+                 <div class="listing-image-container">
+                     <div class="carousel">
+                         <div class="carousel-slides">
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/7b671289-929b-4f94-94c9-9d0608d6a7ee.jpg?im_w=720" alt="Listing 15 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/0b29768f-1fa8-4f7d-b1c5-b4c226c3a0fd.jpg?im_w=720" alt="Listing 15 - View 2"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/1f97132d-1715-4a4f-b84e-cc61692f01ae.jpg?im_w=720" alt="Listing 15 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/ed58c774-5668-4588-a345-50606e743070.jpg?im_w=720" alt="Listing 15 - View 2"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/71313cbb-bcd1-45a7-a3e6-6bd271d03a7d.jpg?im_w=720" alt="Listing 15 - View 1"></div>
+                              <div class="carousel-slide"><img src="https://a0.muscache.com/im/pictures/4aa44c12-e075-4e8c-90ab-984312e38207.jpg?im_w=720" alt="Listing 15 - View 2"></div>
+                         </div>
+                         <button class="carousel-btn prev" aria-label="Previous image">‹</button>
+                         <button class="carousel-btn next" aria-label="Next image">›</button>
+                         <div class="carousel-dots"></div>
+                     </div>
+                     <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                 </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Canggu, Indonesia</span> <span class="rating"><span class="star">★</span> 4.82</span> </div> <div class="listing-description">4,535 kilometres away</div> <div class="listing-dates">22-27 Jun</div> <div class="listing-price" data-base-price="16000"><strong>₹16,000</strong> <span class="price-qualifier">night</span></div> </div>
+             </div>
+
+
+        </div>
+        <div style="text-align: center; margin: 20px 0 40px;">
+             <button style="background-color: #222; color: white; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">Show more</button>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="inspiration-footer">
+            <h2>Inspiration for future getaways</h2>
+            <nav class="inspiration-tabs">
+                <button class="active">Popular</button> <button>Arts & culture</button> <button>Outdoors</button> <button>Mountains</button> <button>Beach</button> <button>Unique stays</button> <button>Categories</button> <button>Things to do</button>
+            </nav>
+            <div class="inspiration-grid">
+                <div class="location-item"> <a href="#">Canmore</a> <span>Flat rentals</span> </div> <div class="location-item"> <a href="#">Benalmádena</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Marbella</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Mijas</a> <span>Flat rentals</span> </div> <div class="location-item"> <a href="#">Prescott</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#">Scottsdale</a> <span>Rentals with pools</span> </div> <div class="location-item"> <a href="#">Tucson</a> <span>Apartment rentals</span> </div> <div class="location-item"> <a href="#">Jasper</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#">Mountain View</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Devonport</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Mallacoota</a> <span>Pet-friendly rentals</span> </div> <div class="location-item"> <a href="#">Ibiza</a> <span>Holiday rentals</span> </div> <div class="location-item"> <a href="#">Anaheim</a> <span>Beach house rentals</span> </div> <div class="location-item"> <a href="#">Monterey</a> <span>House rentals</span> </div> <div class="location-item"> <a href="#">Paso Robles</a> <span>Cottage rentals</span> </div> <div class="location-item"> <a href="#">Santa Barbara</a> <span>Beach house rentals</span> </div> <div class="location-item"> <a href="#">Sonoma</a> <span>Cabin rentals</span> </div> <div class="location-item"> <a href="#" class="show-more-link">Show more ⌄</a></div>
+            </div>
+        </div>
+         <div class="main-footer">
+             <div class="footer-links">
+                 <div class="footer-column"> <h3>Support</h3> <ul> <li><a href="#">Help Centre</a></li> <li><a href="#">AirCover</a></li> <li><a href="#">Anti-discrimination</a></li> <li><a href="#">Disability support</a></li> <li><a href="#">Cancellation options</a></li> <li><a href="#">Report neighbourhood concern</a></li> </ul> </div>
+                 <div class="footer-column"> <h3>Hosting</h3> <ul> <li><a href="#">Airbnb your home</a></li> <li><a href="#">AirCover for Hosts</a></li> <li><a href="#">Hosting resources</a></li> <li><a href="#">Community forum</a></li> <li><a href="#">Hosting responsibly</a></li> <li><a href="#">Join a free Hosting class</a></li> <li><a href="#">Find a co-host</a></li> </ul> </div>
+                  <div class="footer-column"> <h3>Airbnb</h3> <ul> <li><a href="#">Newsroom</a></li> <li><a href="#">New features</a></li> <li><a href="#">Careers</a></li> <li><a href="#">Investors</a></li> <li><a href="#">Airbnb.org emergency stays</a></li> </ul> </div>
+             </div>
+         </div>
+         <div class="footer-bottom-bar">
+             <div class="footer-bottom-left"> <span>© 2025 Airbnb, Inc.</span> <span class="separator">·</span> <a href="#">Privacy</a> <span class="separator">·</span> <a href="#">Terms</a> <span class="separator">·</span> <a href="#">Sitemap</a> <span class="separator">·</span> <a href="#">Company details</a> </div>
+             <div class="footer-bottom-right">
+                 <button>
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" role="presentation" focusable="false" style="display: block; height: 16px; width: 16px;">
+                         <path d="M8 .25a7.75 7.75 0 1 0 0 15.5 7.75 7.75 0 0 0 0-15.5zM.75 8a7.25 7.25 0 1 1 14.5 0 7.25 7.25 0 0 1-14.5 0z"></path>
+                         <path d="M8 1.5A6.5 6.5 0 1 0 8 14.5 6.5 6.5 0 0 0 8 1.5zM1.88 8a6.12 6.12 0 1 1 12.24 0 6.12 6.12 0 0 1-12.24 0zM12 11a1 1 0 0 0 1-1v-.75a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.75a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-.75a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25V10a1 1 0 0 0 1 1h6zM11 5a1 1 0 0 0-1 1v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a2 2 0 0 1 2-2h1.5a2 2 0 0 1 2 2v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a1 1 0 0 0-1-1H11zM5 5a1 1 0 0 0-1 1v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a2 2 0 0 1 2-2h1.5a2 2 0 0 1 2 2v.75a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25V6a1 1 0 0 0-1-1H5z"></path>
+                     </svg>
+                     English (IN)
+                 </button>
+                 <button>
+                     <span style="font-weight: bold; font-size: 1.1em;">₹</span>
+                     INR
+                 </button>
+                 <a href="#" aria-label="Facebook">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path></svg>
+                 </a>
+                 <a href="#" aria-label="Twitter">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-.422.724-.665 1.56-.665 2.445 0 1.68.855 3.16 2.155 4.03-.796-.025-1.548-.244-2.207-.608v.05c0 2.345 1.669 4.299 3.88 4.745-.405.11-.83.17-1.265.17-.312 0-.615-.03-.916-.086.615 1.92 2.395 3.319 4.51 3.359-1.655 1.295-3.74 2.069-6.01 2.069-.39 0-.775-.022-1.15-.066 2.14 1.379 4.67 2.189 7.39 2.189 8.869 0 13.729-7.355 13.729-13.729 0-.209-.005-.417-.014-.625.94-.679 1.757-1.53 2.405-2.495z"></path></svg>
+                 </a>
+                 <a href="#" aria-label="Instagram">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.356.2-6.784 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+                 </a>
+             </div>
+         </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Element References ---
+            const pageHeader = document.getElementById('page-header');
+            const navHomes = document.getElementById('nav-homes');
+            const navExperiences = document.getElementById('nav-experiences');
+            const searchBar = document.getElementById('search-bar');
+            const categoryContainer = document.getElementById('category-filter-items');
+            const categoryItems = categoryContainer.querySelectorAll('.category-item');
+            const taxToggleContainer = document.getElementById('tax-toggle-container');
+            const taxToggleSwitch = document.getElementById('tax-toggle-switch');
+            const listingPrices = document.querySelectorAll('.listing-price');
+            const taxToggleLabel = document.getElementById('tax-toggle-label');
+            const categoryWrapper = document.querySelector('.category-filter-wrapper');
+            const scrollLeftBtn = document.querySelector('.scroll-arrow.left');
+            const scrollRightBtn = document.querySelector('.scroll-arrow.right');
+            const filterContainer = document.getElementById('filter-container');
+             const inspirationTabs = document.querySelectorAll('.inspiration-tabs button'); // Get inspiration tabs
+
+            // --- Scroll Handling for Header ---
+            const scrollThreshold = 10;
+            let isScrolled = false;
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                if (scrollY > scrollThreshold && !isScrolled) {
+                    pageHeader.classList.add('scrolled'); isScrolled = true;
+                } else if (scrollY <= scrollThreshold && isScrolled) {
+                    pageHeader.classList.remove('scrolled'); isScrolled = false;
+                }
+            }, { passive: true });
+
+            // --- Search Mode Switching ---
+            navHomes.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('homes'); });
+            navExperiences.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('experiences'); });
+            function switchSearchMode(mode) {
+                if (mode === 'homes') {
+                    navHomes.classList.add('active'); navExperiences.classList.remove('active');
+                    searchBar.classList.add('mode-homes'); searchBar.classList.remove('mode-experiences');
+                } else if (mode === 'experiences') {
+                    navHomes.classList.remove('active'); navExperiences.classList.add('active');
+                    searchBar.classList.remove('mode-homes'); searchBar.classList.add('mode-experiences');
+                }
+            }
+
+            // --- Carousel Logic ---
+            const carousels = document.querySelectorAll('.listing-card .carousel');
+            carousels.forEach(carousel => {
+                const slidesContainer = carousel.querySelector('.carousel-slides');
+                const slides = carousel.querySelectorAll('.carousel-slide');
+                const prevBtn = carousel.querySelector('.carousel-btn.prev');
+                const nextBtn = carousel.querySelector('.carousel-btn.next');
+                const dotsContainer = carousel.querySelector('.carousel-dots');
+                let currentSlide = 0;
+                const totalSlides = slides.length;
+
+                // Create dots
+                if (dotsContainer && totalSlides > 1) {
+                    // Clear any existing dots (useful if content is dynamically added later)
+                    dotsContainer.innerHTML = '';
+                    for (let i = 0; i < totalSlides; i++) {
+                        const dot = document.createElement('span');
+                        dot.addEventListener('click', () => goToSlide(i));
+                        dotsContainer.appendChild(dot);
+                    }
+                    updateDots(); // Initial active dot
+                } else if (dotsContainer) {
+                    dotsContainer.style.display = 'none'; // Hide dots container if only 1 slide
+                }
+
+                function goToSlide(slideIndex) {
+                    // Clamp index
+                    if (totalSlides <= 1) return; // Do nothing if only one slide
+
+                    if (slideIndex < 0) {
+                        currentSlide = totalSlides - 1;
+                    } else if (slideIndex >= totalSlides) {
+                        currentSlide = 0;
+                    } else {
+                        currentSlide = slideIndex;
+                    }
+                    slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    updateDots();
+                }
+
+                function updateDots() {
+                    if (!dotsContainer || totalSlides <= 1) return;
+                    const dots = dotsContainer.querySelectorAll('span');
+                    dots.forEach((dot, index) => {
+                        if (index === currentSlide) {
+                            dot.classList.add('active');
+                        } else {
+                            dot.classList.remove('active');
+                        }
+                    });
+                }
+
+                if (prevBtn && nextBtn && totalSlides > 1) {
+                     prevBtn.style.display = 'flex'; // Ensure buttons are potentially visible
+                     nextBtn.style.display = 'flex';
+
+                    prevBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent card click
+                        goToSlide(currentSlide - 1);
+                    });
+
+                    nextBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent card click
+                        goToSlide(currentSlide + 1);
+                    });
+                 } else {
+                    // Hide buttons if only 1 slide
+                    if (prevBtn) prevBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = 'none';
+                 }
+
+                 // Initial check to hide controls if only one slide
+                 if (totalSlides <= 1) {
+                      if (dotsContainer) dotsContainer.style.display = 'none';
+                      if (prevBtn) prevBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = 'none';
+                 }
+            });
+
+
+            // --- Mock Category Filter Interaction ---
+            categoryContainer.addEventListener('click', (event) => {
+                const clickedItem = event.target.closest('.category-item');
+                if (!clickedItem || !categoryContainer.contains(clickedItem)) return;
+                categoryItems.forEach(item => item.classList.remove('active'));
+                clickedItem.classList.add('active');
+                console.log(`Category Filter activated: ${clickedItem.querySelector('span').textContent}`);
+            });
+
+             // --- Mock Inspiration Tabs Interaction ---
+             inspirationTabs.forEach(tab => {
+                  tab.addEventListener('click', () => {
+                       inspirationTabs.forEach(t => t.classList.remove('active')); // Remove active from all
+                       tab.classList.add('active'); // Add active to clicked
+                       console.log(`Inspiration Tab activated: ${tab.textContent}`);
+                       // In a real app, update the grid below
+                  });
+             });
+
+            // --- Mock Tax Toggle Interaction ---
+            taxToggleContainer.addEventListener('click', () => {
+                const isToggleOn = taxToggleSwitch.classList.toggle('on');
+                updatePrices(isToggleOn);
+                updateToggleLabel(isToggleOn);
+            });
+            function updateToggleLabel(isOn) { taxToggleLabel.textContent = isOn ? 'Display price per night' : 'Display total before taxes'; }
+            function updatePrices(showTotal) {
+                listingPrices.forEach(priceElement => {
+                    const basePrice = parseInt(priceElement.dataset.basePrice, 10);
+                    const priceValueElement = priceElement.querySelector('strong');
+                    const priceQualifierElement = priceElement.querySelector('.price-qualifier');
+                    if (isNaN(basePrice)) return;
+                    const formatCurrency = (value) => `₹${value.toLocaleString('en-IN')}`;
+                    if (showTotal) {
+                        const totalPrice = Math.round(basePrice * 1.10); // Example tax calculation (10%)
+                        priceValueElement.textContent = formatCurrency(totalPrice); priceQualifierElement.textContent = 'total before taxes';
+                    } else {
+                        priceValueElement.textContent = formatCurrency(basePrice); priceQualifierElement.textContent = 'night';
+                    }
+                });
+            }
+            updateToggleLabel(taxToggleSwitch.classList.contains('on')); // Initial label setup
+
+            // --- Mock Scroll Button Clicks ---
+            const scrollAmount = 300;
+            scrollLeftBtn.addEventListener('click', () => { categoryWrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); console.log('Scroll Left'); });
+            scrollRightBtn.addEventListener('click', () => { categoryWrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' }); console.log('Scroll Right'); });
+
+             // --- Initial Setup ---
+             switchSearchMode('homes'); // Set initial search mode
+             updatePrices(taxToggleSwitch.classList.contains('on')); // Initial price display based on toggle state
+
+        });
+    </script>
+
+</body>
+</html>
