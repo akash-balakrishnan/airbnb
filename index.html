@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airbnb</title>
+    <link rel="icon" type="image/png" href="https://www.shutterstock.com/image-vector/pink-background-white-line-airbnb-600nw-2203503727.jpg">
     <style>
         /* --- Basic Reset & Body Styles --- */
         body, h1, h2, h3, p, div, nav, header, main, footer, button, input, span, label, a, img, figure, svg, ul, li {
@@ -362,7 +363,14 @@
             opacity: 0;           /* Start faded out */
             transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition */
         }
-
+        .heart-icon.hearted {
+            color: #FF385C; /* Airbnb red color */
+            /* If using an SVG icon, you might need to target the SVG fill/stroke instead */
+            /* Example for SVG: */
+            /* fill: #FF385C; */
+            /* stroke: #FF385C; */
+            text-shadow: none; /* Optional: remove text shadow when filled */
+        }
         /* Style when the modal is open */
         .filters-modal.open {
             display: flex;     /* Show the modal */
@@ -852,12 +860,51 @@
             transform: scale(1.3);
         }
 
+        /* --- Styles for Directions Icon Button --- */
+        .directions-icon-btn {
+            /* ... other styles like padding, border-radius, margin-left ... */
+            padding: 5px;
+            background: none;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
+            margin-left: auto;
+        }
+
+        .directions-icon-btn img {
+            width: 22px;
+            height: 22px;
+            display: block;
+            object-fit: contain;
+            transition: transform 0.2s ease-out;/* Smoothens the scaling */
+        }
+
+        .directions-icon-btn:hover {
+        background-color: #f0f0f0; /* Optional */
+        }
+
+        .directions-icon-btn:hover img {
+            transform: scale(1.05) translateY(-2px); /* Icon enlarges by 20% */
+        }
+        /* --- End Directions Icon Button Styles --- */
+
         /* --- Other Card Styles --- */
         .heart-icon { position: absolute; top: 12px; right: 12px; font-size: 1.5em; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.4); background: none; border: none; padding: 5px; z-index: 5; /* Below buttons */ }
         .heart-icon:hover { transform: scale(1.1); }
         .badge { position: absolute; top: 12px; left: 12px; background-color: rgba(255, 255, 255, 0.95); color: #222; padding: 4px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; z-index: 5; }
         .listing-details { font-size: 0.95em; line-height: 1.4; }
-        .listing-location-rating { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+        .listing-location-rating {
+            display: flex; /* Use flexbox for layout */
+            /* justify-content: space-between; REMOVE or keep if you want max space */
+            align-items: center; /* Vertically center items */
+            margin-bottom: 2px;
+            gap: 5px; /* Add some gap between location, rating, and icon */
+        }
         .listing-location-rating .location { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
         .listing-location-rating .rating { font-weight: 400; white-space: nowrap; flex-shrink: 0; }
         .rating .star { color: #222; font-size: 0.9em; margin-right: 2px; }
@@ -1094,8 +1141,16 @@
                          <div class="carousel-dots"></div>
                      </div>
                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                     <!-- <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location-pin.png" alt="Directions">
+                    </button> -->
                  </div>
-                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Hua Hin, Thailand</span> <span class="rating"><span class="star">★</span> 4.89</span> </div> <div class="listing-description">2,304 kilometres away</div> <div class="listing-dates">20-25 Apr</div> <div class="listing-price" data-base-price="32193"><strong>₹32,193</strong> <span class="price-qualifier">night</span></div> </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> 
+                    <span class="location">Hua Hin, Thailand</span> <span class="rating"><span class="star">★</span> 4.89</span> <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button></div> 
+                 <div class="listing-description">2,304 kilometres away</div> <div class="listing-dates">20-25 Apr</div> <div class="listing-price" data-base-price="32193"><strong>₹32,193</strong> <span class="price-qualifier">night</span></div> 
+                </div>
             </div>
 
              <div class="listing-card">
@@ -1115,7 +1170,11 @@
                      </div>
                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                  </div>
-                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ko Samui, Thailand</span> <span class="rating"><span class="star">★</span> 4.99</span> </div> <div class="listing-description">Designed by Marc Gerritsen</div> <div class="listing-dates">4-9 Jun</div> <div class="listing-price" data-base-price="18939"><strong>₹18,939</strong> <span class="price-qualifier">night</span></div> </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ko Samui, Thailand</span> <span class="rating"><span class="star">★</span> 4.99</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Designed by Marc Gerritsen</div> <div class="listing-dates">4-9 Jun</div> <div class="listing-price" data-base-price="18939"><strong>₹18,939</strong> <span class="price-qualifier">night</span></div> </div>
              </div>
 
              <div class="listing-card">
@@ -1136,7 +1195,11 @@
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                       <span class="badge">Guest favourite</span>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Lovina, Indonesia</span> <span class="rating"><span class="star">★</span> 4.9</span> </div> <div class="listing-description">4,856 kilometres away</div> <div class="listing-dates">25-30 Apr</div> <div class="listing-price" data-base-price="30057"><strong>₹30,057</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Lovina, Indonesia</span> <span class="rating"><span class="star">★</span> 4.9</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">4,856 kilometres away</div> <div class="listing-dates">25-30 Apr</div> <div class="listing-price" data-base-price="30057"><strong>₹30,057</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1156,7 +1219,11 @@
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ho Chi Minh, Vietnam</span> <span class="rating"><span class="star">★</span> 4.81</span> </div> <div class="listing-description">3,129 kilometres away</div> <div class="listing-dates">8-13 May</div> <div class="listing-price" data-base-price="15208"><strong>₹15,208</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ho Chi Minh, Vietnam</span> <span class="rating"><span class="star">★</span> 4.81</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">3,129 kilometres away</div> <div class="listing-dates">8-13 May</div> <div class="listing-price" data-base-price="15208"><strong>₹15,208</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1176,7 +1243,11 @@
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Pererenan, Indonesia</span> <span class="rating"><span class="star">★</span> 4.89</span> </div> <div class="listing-description">Designed by Alexis Dornier</div> <div class="listing-dates">25-30 Apr</div> <div class="listing-price" data-base-price="18847"><strong>₹18,847</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Pererenan, Indonesia</span> <span class="rating"><span class="star">★</span> 4.89</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Designed by Alexis Dornier</div> <div class="listing-dates">25-30 Apr</div> <div class="listing-price" data-base-price="18847"><strong>₹18,847</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1197,7 +1268,11 @@
                        <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                        <span class="badge">Guest favourite</span>
                    </div>
-                   <div class="listing-details"> <div class="listing-location-rating"> <span class="location">อำเภอถลาง, Thailand</span> <span class="rating"><span class="star">★</span> 4.88</span> </div> <div class="listing-description">Modern pool villa</div> <div class="listing-dates">1-6 May</div> <div class="listing-price" data-base-price="25000"><strong>₹25,000</strong> <span class="price-qualifier">night</span></div> </div>
+                   <div class="listing-details"> <div class="listing-location-rating"> <span class="location">อำเภอถลาง, Thailand</span> <span class="rating"><span class="star">★</span> 4.88</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Modern pool villa</div> <div class="listing-dates">1-6 May</div> <div class="listing-price" data-base-price="25000"><strong>₹25,000</strong> <span class="price-qualifier">night</span></div> </div>
                 </div>
 
              <div class="listing-card">
@@ -1218,7 +1293,11 @@
                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                      <span class="badge">Guest favourite</span>
                  </div>
-                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Phuket, Thailand</span> <span class="rating"><span class="star">★</span> 4.95</span> </div> <div class="listing-description">Ocean view apartment</div> <div class="listing-dates">10-15 May</div> <div class="listing-price" data-base-price="20000"><strong>₹20,000</strong> <span class="price-qualifier">night</span></div> </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Phuket, Thailand</span> <span class="rating"><span class="star">★</span> 4.95</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Ocean view apartment</div> <div class="listing-dates">10-15 May</div> <div class="listing-price" data-base-price="20000"><strong>₹20,000</strong> <span class="price-qualifier">night</span></div> </div>
              </div>
 
              <div class="listing-card">
@@ -1238,7 +1317,11 @@
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ubud, Indonesia</span> <span class="rating"><span class="star">★</span> 4.70</span> </div> <div class="listing-description">Jungle view villa</div> <div class="listing-dates">18-23 May</div> <div class="listing-price" data-base-price="19500"><strong>₹19,500</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ubud, Indonesia</span> <span class="rating"><span class="star">★</span> 4.70</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Jungle view villa</div> <div class="listing-dates">18-23 May</div> <div class="listing-price" data-base-price="19500"><strong>₹19,500</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1258,7 +1341,11 @@
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Kyoto, Japan</span> <span class="rating"><span class="star">★</span> 4.92</span> </div> <div class="listing-description">Traditional Machiya House</div> <div class="listing-dates">1-6 Jun</div> <div class="listing-price" data-base-price="22000"><strong>₹22,000</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Kyoto, Japan</span> <span class="rating"><span class="star">★</span> 4.92</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Traditional Machiya House</div> <div class="listing-dates">1-6 Jun</div> <div class="listing-price" data-base-price="22000"><strong>₹22,000</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1278,7 +1365,11 @@
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Siem Reap, Cambodia</span> <span class="rating"><span class="star">★</span> 4.85</span> </div> <div class="listing-description">Colonial style villa with pool</div> <div class="listing-dates">5-10 Jun</div> <div class="listing-price" data-base-price="17500"><strong>₹17,500</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Siem Reap, Cambodia</span> <span class="rating"><span class="star">★</span> 4.85</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Colonial style villa with pool</div> <div class="listing-dates">5-10 Jun</div> <div class="listing-price" data-base-price="17500"><strong>₹17,500</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1300,7 +1391,11 @@
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                          <span class="badge">Guest favourite</span>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Kuala Lumpur, Malaysia</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">Overwater Bungalow</div> <div class="listing-dates">15-20 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Kuala Lumpur, Malaysia</span> <span class="rating"><span class="star">★</span> 4.98</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">Overwater Bungalow</div> <div class="listing-dates">15-20 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1321,7 +1416,11 @@
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ko Samui, Thailand</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">3,129 kilometres away</div> <div class="listing-dates">16-19 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ko Samui, Thailand</span> <span class="rating"><span class="star">★</span> 4.98</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">3,129 kilometres away</div> <div class="listing-dates">16-19 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1343,7 +1442,11 @@
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
 
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Watthana, Thailand</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">4,225 kilometres away</div> <div class="listing-dates">17-22 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Watthana, Thailand</span> <span class="rating"><span class="star">★</span> 4.98</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">4,225 kilometres away</div> <div class="listing-dates">17-22 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1363,7 +1466,11 @@
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                   </div>
-                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ha Long, Vietnam</span> <span class="rating"><span class="star">★</span> 4.98</span> </div> <div class="listing-description">2,723 kilometres away</div> <div class="listing-dates">25-30 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
+                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ha Long, Vietnam</span> <span class="rating"><span class="star">★</span> 4.98</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">2,723 kilometres away</div> <div class="listing-dates">25-30 Jun</div> <div class="listing-price" data-base-price="45000"><strong>₹45,000</strong> <span class="price-qualifier">night</span></div> </div>
               </div>
 
              <div class="listing-card">
@@ -1383,7 +1490,11 @@
                      </div>
                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
                  </div>
-                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Canggu, Indonesia</span> <span class="rating"><span class="star">★</span> 4.82</span> </div> <div class="listing-description">4,535 kilometres away</div> <div class="listing-dates">22-27 Jun</div> <div class="listing-price" data-base-price="16000"><strong>₹16,000</strong> <span class="price-qualifier">night</span></div> </div>
+                 <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Canggu, Indonesia</span> <span class="rating"><span class="star">★</span> 4.82</span> 
+                    <button class="directions-icon-btn" aria-label="Get directions">
+                        <img src="icons/location.png" alt="Directions">
+                    </button>
+                </div> <div class="listing-description">4,535 kilometres away</div> <div class="listing-dates">22-27 Jun</div> <div class="listing-price" data-base-price="16000"><strong>₹16,000</strong> <span class="price-qualifier">night</span></div> </div>
              </div>
 
 
@@ -1476,107 +1587,616 @@
             let currentFilters = { ...initialFilters };
             const countersState = { bedrooms: 0, beds: 0, bathrooms: 0 };
             const priceSliderConfig = { minRange: 500, maxRange: 100000, step: 100 };
-            const histogramBarData = [5,6,7,8,10,12,15,18,22,26,30,35,40,45,50,55,60,65,70,75,80,78,75,72,68,64,60,56,52,48,44,40,36,32,28,24,20,18,16,14,12,10,9,8,7,6,5,4,4,3];
+            // Simple example histogram data - replace with real data if available
+            const histogramBarData = [5, 6, 7, 8, 10, 12, 15, 18, 22, 26, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 78, 75, 72, 68, 64, 60, 56, 52, 48, 44, 40, 36, 32, 28, 24, 20, 18, 16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 4, 3];
             const numBars = histogramBarData.length;
     
             // --- Scroll Handling for Header ---
-            if (pageHeader) { /* ... header scroll logic ... */
-                 const scrollThreshold = 10; let isScrolled = false; window.addEventListener('scroll', () => { const scrollY = window.scrollY; if (scrollY > scrollThreshold && !isScrolled) { pageHeader.classList.add('scrolled'); isScrolled = true; } else if (scrollY <= scrollThreshold && isScrolled) { pageHeader.classList.remove('scrolled'); isScrolled = false; } }, { passive: true });
+            if (pageHeader) {
+                const scrollThreshold = 10;
+                let isScrolled = false;
+                window.addEventListener('scroll', () => {
+                    const scrollY = window.scrollY;
+                    if (scrollY > scrollThreshold && !isScrolled) {
+                        pageHeader.classList.add('scrolled');
+                        isScrolled = true;
+                    } else if (scrollY <= scrollThreshold && isScrolled) {
+                        pageHeader.classList.remove('scrolled');
+                        isScrolled = false;
+                    }
+                }, { passive: true });
             }
     
             // --- Search Mode Switching ---
-            if (navHomes && navExperiences && searchBar) { /* ... search mode switch logic ... */
-                 navHomes.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('homes'); }); navExperiences.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('experiences'); }); function switchSearchMode(mode) { if (mode === 'homes') { navHomes.classList.add('active'); navExperiences.classList.remove('active'); searchBar.classList.add('mode-homes'); searchBar.classList.remove('mode-experiences'); } else if (mode === 'experiences') { navHomes.classList.remove('active'); navExperiences.classList.add('active'); searchBar.classList.remove('mode-homes'); searchBar.classList.add('mode-experiences'); } }
-                 switchSearchMode('homes');
+            if (navHomes && navExperiences && searchBar) {
+                function switchSearchMode(mode) {
+                    if (mode === 'homes') {
+                        navHomes.classList.add('active');
+                        navExperiences.classList.remove('active');
+                        searchBar.classList.add('mode-homes');
+                        searchBar.classList.remove('mode-experiences');
+                    } else if (mode === 'experiences') {
+                        navHomes.classList.remove('active');
+                        navExperiences.classList.add('active');
+                        searchBar.classList.remove('mode-homes');
+                        searchBar.classList.add('mode-experiences');
+                    }
+                }
+                navHomes.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('homes'); });
+                navExperiences.addEventListener('click', (e) => { e.preventDefault(); switchSearchMode('experiences'); });
+                switchSearchMode('homes'); // Initial state
             }
     
             // --- Carousel Logic ---
-             const carousels = document.querySelectorAll('.listing-card .carousel');
-             carousels.forEach(carousel => { /* ... Full carousel logic ... */
-                  const slidesContainer = carousel.querySelector('.carousel-slides'); const slides = carousel.querySelectorAll('.carousel-slide'); const prevBtn = carousel.querySelector('.carousel-btn.prev'); const nextBtn = carousel.querySelector('.carousel-btn.next'); const dotsContainer = carousel.querySelector('.carousel-dots'); if (!slidesContainer || slides.length === 0) return; let currentSlide = 0; const totalSlides = slides.length; if (dotsContainer && totalSlides > 1) { dotsContainer.innerHTML = ''; for (let i = 0; i < totalSlides; i++) { const dot = document.createElement('span'); dot.addEventListener('click', () => goToSlide(i)); dotsContainer.appendChild(dot); } updateDots(); } else if (dotsContainer) { dotsContainer.style.display = 'none'; } function goToSlide(slideIndex) { if (totalSlides <= 1) return; currentSlide = (slideIndex + totalSlides) % totalSlides; slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`; updateDots(); } function updateDots() { if (!dotsContainer || totalSlides <= 1) return; const dots = dotsContainer.querySelectorAll('span'); dots.forEach((dot, index) => dot.classList.toggle('active', index === currentSlide)); } if (prevBtn && nextBtn && totalSlides > 1) { prevBtn.style.display = 'flex'; nextBtn.style.display = 'flex'; prevBtn.addEventListener('click', (e) => { e.stopPropagation(); goToSlide(currentSlide - 1); }); nextBtn.addEventListener('click', (e) => { e.stopPropagation(); goToSlide(currentSlide + 1); }); } else { if (prevBtn) prevBtn.style.display = 'none'; if (nextBtn) nextBtn.style.display = 'none'; } if (totalSlides <= 1) { if (dotsContainer) dotsContainer.style.display = 'none'; if (prevBtn) prevBtn.style.display = 'none'; if (nextBtn) nextBtn.style.display = 'none'; }
-             });
+            const carousels = document.querySelectorAll('.listing-card .carousel');
+            carousels.forEach(carousel => {
+                const slidesContainer = carousel.querySelector('.carousel-slides');
+                const slides = carousel.querySelectorAll('.carousel-slide');
+                const prevBtn = carousel.querySelector('.carousel-btn.prev');
+                const nextBtn = carousel.querySelector('.carousel-btn.next');
+                const dotsContainer = carousel.querySelector('.carousel-dots');
+    
+                if (!slidesContainer || slides.length === 0) return;
+    
+                let currentSlide = 0;
+                const totalSlides = slides.length;
+    
+                function updateDots() {
+                     if (!dotsContainer || totalSlides <= 1) return;
+                     const dots = dotsContainer.querySelectorAll('span');
+                     dots.forEach((dot, index) => dot.classList.toggle('active', index === currentSlide));
+                }
+    
+                 function goToSlide(slideIndex) {
+                     if (totalSlides <= 1) return;
+                     currentSlide = (slideIndex + totalSlides) % totalSlides;
+                     slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+                     updateDots();
+                 }
+    
+                // Setup Dots
+                if (dotsContainer && totalSlides > 1) {
+                    dotsContainer.innerHTML = ''; // Clear existing dots if any
+                    for (let i = 0; i < totalSlides; i++) {
+                        const dot = document.createElement('span');
+                        dot.addEventListener('click', () => goToSlide(i));
+                        dotsContainer.appendChild(dot);
+                    }
+                    updateDots(); // Set initial active dot
+                } else if (dotsContainer) {
+                    dotsContainer.style.display = 'none'; // Hide dots container if only one slide
+                }
+    
+                // Setup Buttons
+                if (prevBtn && nextBtn && totalSlides > 1) {
+                     prevBtn.style.display = 'flex'; // Ensure buttons are visible if needed
+                     nextBtn.style.display = 'flex';
+                     prevBtn.addEventListener('click', (e) => { e.stopPropagation(); goToSlide(currentSlide - 1); });
+                     nextBtn.addEventListener('click', (e) => { e.stopPropagation(); goToSlide(currentSlide + 1); });
+                } else {
+                     // Hide buttons if only one slide or buttons don't exist
+                     if (prevBtn) prevBtn.style.display = 'none';
+                     if (nextBtn) nextBtn.style.display = 'none';
+                }
+    
+                 // Hide controls entirely if only one slide
+                 if (totalSlides <= 1) {
+                     if (dotsContainer) dotsContainer.style.display = 'none';
+                     if (prevBtn) prevBtn.style.display = 'none';
+                     if (nextBtn) nextBtn.style.display = 'none';
+                 }
+            });
     
             // --- Mock Category Filter Interaction (Item Clicks) ---
-             if (categoryContainer) { /* ... category item click logic ... */
-                categoryContainer.addEventListener('click', (event) => { const clickedItem = event.target.closest('.category-item'); if (!clickedItem || !categoryContainer.contains(clickedItem) || event.target.closest('.scroll-arrow')) return; const categoryItems = categoryContainer.querySelectorAll('.category-item'); categoryItems.forEach(item => item.classList.remove('active')); clickedItem.classList.add('active'); console.log(`Category Filter activated: ${clickedItem.querySelector('span').textContent}`); });
-             }
+            if (categoryContainer) {
+                categoryContainer.addEventListener('click', (event) => {
+                    const clickedItem = event.target.closest('.category-item');
+                    // Ignore clicks on arrows or outside items
+                    if (!clickedItem || !categoryContainer.contains(clickedItem) || event.target.closest('.scroll-arrow')) return;
+    
+                    const categoryItems = categoryContainer.querySelectorAll('.category-item');
+                    categoryItems.forEach(item => item.classList.remove('active'));
+                    clickedItem.classList.add('active');
+                    console.log(`Category Filter activated: ${clickedItem.querySelector('span').textContent}`);
+                    // Add actual filtering logic here if needed
+                });
+            }
     
             // --- Mock Inspiration Tabs Interaction ---
-             if (inspirationTabs.length > 0) { /* ... inspiration tabs logic ... */
-                inspirationTabs.forEach(tab => { tab.addEventListener('click', () => { inspirationTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active'); console.log(`Inspiration Tab activated: ${tab.textContent}`); }); });
-             }
+            if (inspirationTabs.length > 0) {
+                inspirationTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        inspirationTabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        console.log(`Inspiration Tab activated: ${tab.textContent}`);
+                        // Add logic to change content based on tab here
+                    });
+                });
+            }
     
-            // --- Mock Tax Toggle Interaction ---
-             if (taxToggleContainer && taxToggleSwitch && taxToggleLabel) { /* ... tax toggle logic ... */
-                 taxToggleContainer.addEventListener('click', () => { const isToggleOn = taxToggleSwitch.classList.toggle('on'); updatePrices(isToggleOn); updateToggleLabel(isToggleOn); }); function updateToggleLabel(isOn) { taxToggleLabel.textContent = isOn ? 'Display price per night' : 'Display total before taxes'; } function updatePrices(showTotal) { listingPrices.forEach(priceElement => { const basePrice = parseInt(priceElement.dataset.basePrice, 10); const priceValueElement = priceElement.querySelector('strong'); const priceQualifierElement = priceElement.querySelector('.price-qualifier'); if (isNaN(basePrice) || !priceValueElement || !priceQualifierElement) return; const formatCurrency = (value) => `₹${value.toLocaleString('en-IN')}`; if (showTotal) { const totalPrice = Math.round(basePrice * 1.10); priceValueElement.textContent = formatCurrency(totalPrice); priceQualifierElement.textContent = 'total before taxes'; } else { priceValueElement.textContent = formatCurrency(basePrice); priceQualifierElement.textContent = 'night'; } }); }
-             }
+            // --- Tax Toggle Interaction ---
+            if (taxToggleContainer && taxToggleSwitch && taxToggleLabel) {
+                function updateToggleLabel(isOn) {
+                    taxToggleLabel.textContent = isOn ? 'Display price per night' : 'Display total before taxes';
+                }
+    
+                function updatePrices(showTotal) {
+                    listingPrices.forEach(priceElement => {
+                        const basePrice = parseInt(priceElement.dataset.basePrice, 10);
+                        const priceValueElement = priceElement.querySelector('strong');
+                        const priceQualifierElement = priceElement.querySelector('.price-qualifier');
+    
+                        if (isNaN(basePrice) || !priceValueElement || !priceQualifierElement) return;
+    
+                        const formatCurrency = (value) => `₹${value.toLocaleString('en-IN')}`;
+    
+                        if (showTotal) {
+                            // Example tax calculation (10%) - adjust as needed
+                            const totalPrice = Math.round(basePrice * 1.10);
+                            priceValueElement.textContent = formatCurrency(totalPrice);
+                            priceQualifierElement.textContent = 'total before taxes';
+                        } else {
+                            priceValueElement.textContent = formatCurrency(basePrice);
+                            priceQualifierElement.textContent = 'night';
+                        }
+                    });
+                }
+    
+                taxToggleContainer.addEventListener('click', () => {
+                    const isToggleOn = taxToggleSwitch.classList.toggle('on');
+                    updatePrices(isToggleOn);
+                    updateToggleLabel(isToggleOn);
+                    // Optional: Save toggle state to localStorage
+                    // localStorage.setItem('taxToggleState', isToggleOn);
+                });
+    
+                // Optional: Load initial state from localStorage
+                // const savedToggleState = localStorage.getItem('taxToggleState') === 'true';
+                // if (savedToggleState) taxToggleSwitch.classList.add('on');
+                // updatePrices(savedToggleState);
+                // updateToggleLabel(savedToggleState);
+            }
     
     
-            // === START: Simplified Filter Arrow Scroll Logic ===
-            // This version scrolls the WRAPPER and does NOT hide/show arrows.
-            if (scrollLeftBtn && scrollRightBtn && categoryWrapper) { // Check if these elements exist
-                const simpleScrollAmount = 300; // Fixed scroll amount in pixels
-    
-                console.log("DEBUG: Setting up SIMPLE arrow scroll logic."); // DEBUG
+            // === Simplified Filter Arrow Scroll Logic ===
+            if (scrollLeftBtn && scrollRightBtn && categoryWrapper) {
+                const simpleScrollAmount = 300; // Pixels to scroll
     
                 scrollLeftBtn.addEventListener('click', () => {
-                    console.log("DEBUG: Simple Left Arrow Clicked!"); // DEBUG
-                    // Attempt to scroll the WRAPPER
-                    categoryWrapper.scrollBy({
-                        left: -simpleScrollAmount,
-                        behavior: 'smooth'
-                    });
+                    categoryWrapper.scrollBy({ left: -simpleScrollAmount, behavior: 'smooth' });
                 });
     
                 scrollRightBtn.addEventListener('click', () => {
-                    console.log("DEBUG: Simple Right Arrow Clicked!"); // DEBUG
-                    // Attempt to scroll the WRAPPER
-                    categoryWrapper.scrollBy({
-                        left: simpleScrollAmount,
-                        behavior: 'smooth'
-                    });
+                    categoryWrapper.scrollBy({ left: simpleScrollAmount, behavior: 'smooth' });
                 });
     
-                 // Ensure arrows are not hidden by default if using this logic
+                // No need to hide/show arrows in this simplified version
                  scrollLeftBtn?.classList.remove('hidden');
                  scrollRightBtn?.classList.remove('hidden');
-                 console.log("DEBUG: Ensured arrows are not hidden."); // DEBUG
-    
             } else {
                 console.warn("Could not find elements for simple arrow scrolling (wrapper/buttons).");
             }
-            // === END: Simplified Filter Arrow Scroll Logic ===
-    
     
             // --- Filters Modal Logic ---
             if (filtersModal && modalOverlay && filtersButton) {
-                // ... (Keep ALL the modal logic from the previous full script) ...
-                // Includes: generateHistogramBars, updateHistogramColors, slider init,
-                // open/close modal, syncCountersFromState, syncAllFiltersUI,
-                // listeners for type/amenities/counters/clear/show places
                 console.log("DEBUG: Setting up modal logic...");
     
-                 function generateHistogramBars() { if (!histogramBarContainer) return; histogramBarContainer.innerHTML = ''; for (let i = 0; i < numBars; i++) { const bar = document.createElement('div'); bar.className = 'hist-bar'; bar.style.height = `${Math.max(1, histogramBarData[i] || 1)}%`; histogramBarContainer.appendChild(bar); } }
-                 function updateHistogramColors(minVal, maxVal) { if (!histogramBarContainer) return; const bars = histogramBarContainer.querySelectorAll('.hist-bar'); if (bars.length !== numBars) return; const pricePerBar = (priceSliderConfig.maxRange - priceSliderConfig.minRange) / numBars; bars.forEach((bar, index) => { const barMinPrice = priceSliderConfig.minRange + (index * pricePerBar); const barMaxPrice = barMinPrice + pricePerBar; const isActive = (minVal <= barMaxPrice && maxVal >= barMinPrice); bar.classList.toggle('active', isActive); }); }
-                 if (priceSliderElement && minPriceInput && maxPriceInput && typeof noUiSlider !== 'undefined') { generateHistogramBars(); noUiSlider.create(priceSliderElement, { start: [currentFilters.minPrice, currentFilters.maxPrice], connect: true, step: priceSliderConfig.step, range: { 'min': priceSliderConfig.minRange, 'max': priceSliderConfig.maxRange } }); priceSliderElement.noUiSlider.on('update', function (values, handle) { let minValue = parseInt(values[0]); let maxValue = parseInt(values[1]); minPriceInput.value = minValue.toLocaleString('en-IN'); maxPriceInput.value = maxValue >= priceSliderConfig.maxRange ? `${maxValue.toLocaleString('en-IN')}+` : maxValue.toLocaleString('en-IN'); currentFilters.minPrice = minValue; currentFilters.maxPrice = maxValue; updateHistogramColors(minValue, maxValue); }); updateHistogramColors(currentFilters.minPrice, currentFilters.maxPrice); } else { console.warn("Price slider elements/library not found."); }
-                 function openFiltersModal() { modalOverlay.classList.add('open'); filtersModal.classList.add('open'); document.body.style.overflow = 'hidden'; syncAllFiltersUI(); } function closeFiltersModal() { modalOverlay.classList.remove('open'); filtersModal.classList.remove('open'); document.body.style.overflow = ''; }
-                 function syncCountersFromState() { if (!counterControls) return; counterControls.forEach(control => { const minusBtn = control.querySelector('.minus'); const valueSpan = control.querySelector('.counter-value'); if (!minusBtn || !valueSpan) return; const target = minusBtn.dataset.target; const stateValue = currentFilters[target]; countersState[target] = (stateValue === 'any' ? 0 : Number(stateValue)); let displayValue = countersState[target]; valueSpan.textContent = displayValue === 0 ? 'Any' : (displayValue >= 8 ? `${displayValue}+` : displayValue); minusBtn.classList.toggle('disabled', displayValue === 0); }); }
-                 function syncAllFiltersUI() { typeOfPlaceBtns?.forEach(btn => btn.classList.toggle('active', btn.dataset.value === currentFilters.type)); allChips?.forEach(chip => { const value = chip.dataset.value; const h3Element = chip.closest('.filter-section')?.querySelector('h3'); const isAmenity = h3Element && h3Element.textContent === 'Amenities'; if (isAmenity) { chip.classList.toggle('selected', currentFilters.amenities.includes(value)); } else { chip.classList.toggle('selected', !!currentFilters[value]); } }); syncCountersFromState(); if (priceSliderElement && priceSliderElement.noUiSlider) { priceSliderElement.noUiSlider.set([currentFilters.minPrice, currentFilters.maxPrice]); } else { if (minPriceInput) minPriceInput.value = currentFilters.minPrice.toLocaleString('en-IN'); if (maxPriceInput) maxPriceInput.value = currentFilters.maxPrice >= priceSliderConfig.maxRange ? `${currentFilters.maxPrice.toLocaleString('en-IN')}+` : currentFilters.maxPrice.toLocaleString('en-IN'); } }
-                 filtersButton.addEventListener('click', openFiltersModal); if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeFiltersModal); modalOverlay.addEventListener('click', closeFiltersModal);
-                 if (typeOfPlaceBtns) { typeOfPlaceBtns.forEach(btn => { btn.addEventListener('click', () => { typeOfPlaceBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentFilters.type = btn.dataset.value; console.log("Selected Type:", currentFilters.type); }); }); }
-                 if (allChips) { allChips.forEach(chip => { chip.addEventListener('click', () => { chip.classList.toggle('selected'); const value = chip.dataset.value; const h3Element = chip.closest('.filter-section')?.querySelector('h3'); const isAmenity = h3Element && h3Element.textContent === 'Amenities'; if (isAmenity) { const index = currentFilters.amenities.indexOf(value); if (chip.classList.contains('selected') && index === -1) { currentFilters.amenities.push(value); } else if (!chip.classList.contains('selected') && index > -1) { currentFilters.amenities.splice(index, 1); } console.log("Selected Amenities:", currentFilters.amenities); } else { currentFilters[value] = chip.classList.contains('selected'); console.log("Booking Options Updated:", { instant_book: currentFilters.instant_book, self_checkin: currentFilters.self_checkin, allows_pets: currentFilters.allows_pets }); } }); }); }
-                 if (counterControls) { counterControls.forEach(control => { const minusBtn = control.querySelector('.minus'); const plusBtn = control.querySelector('.plus'); const valueSpan = control.querySelector('.counter-value'); if (!minusBtn || !plusBtn || !valueSpan) return; const target = minusBtn.dataset.target; const updateCounterUIAndState = () => { if (!target || typeof countersState[target] === 'undefined') { console.error(`DEBUG: Invalid target "${target}" or missing countersState.`); return; } let displayValue = countersState[target]; let textToDisplay = displayValue === 0 ? 'Any' : (displayValue >= 8 ? `${displayValue}+` : displayValue); try { valueSpan.textContent = textToDisplay; } catch (e) { console.error(`Error setting textContent for ${target}:`, e); } minusBtn.classList.toggle('disabled', displayValue === 0); currentFilters[target] = displayValue === 0 ? 'any' : displayValue; }; minusBtn.addEventListener('click', () => { if (countersState[target] > 0) { countersState[target]--; updateCounterUIAndState(); } }); plusBtn.addEventListener('click', () => { countersState[target]++; updateCounterUIAndState(); }); if (typeof countersState[target] === 'undefined') countersState[target] = 0; }); syncCountersFromState(); } else { console.warn("Counter controls not found."); }
-                 if (clearAllBtn) { clearAllBtn.addEventListener('click', () => { currentFilters = { ...initialFilters }; syncAllFiltersUI(); console.log("Filters Cleared", currentFilters); }); }
-                 if (showPlacesBtn) { showPlacesBtn.addEventListener('click', () => { console.log("Applying Filters:", currentFilters); /* Add filtering logic */ closeFiltersModal(); }); }
+                function generateHistogramBars() {
+                    if (!histogramBarContainer) return;
+                    histogramBarContainer.innerHTML = ''; // Clear previous bars
+                    for (let i = 0; i < numBars; i++) {
+                        const bar = document.createElement('div');
+                        bar.className = 'hist-bar';
+                        // Ensure height is at least 1% for visibility, use data or default
+                        bar.style.height = `${Math.max(1, histogramBarData[i] || 1)}%`;
+                        histogramBarContainer.appendChild(bar);
+                    }
+                }
+    
+                function updateHistogramColors(minVal, maxVal) {
+                    if (!histogramBarContainer) return;
+                    const bars = histogramBarContainer.querySelectorAll('.hist-bar');
+                    if (bars.length !== numBars) return; // Ensure bars exist
+    
+                    const pricePerBar = (priceSliderConfig.maxRange - priceSliderConfig.minRange) / numBars;
+    
+                    bars.forEach((bar, index) => {
+                        const barMinPrice = priceSliderConfig.minRange + (index * pricePerBar);
+                        const barMaxPrice = barMinPrice + pricePerBar;
+                        // A bar is active if the selected range overlaps with the bar's range
+                        const isActive = (minVal <= barMaxPrice && maxVal >= barMinPrice);
+                        bar.classList.toggle('active', isActive);
+                    });
+                }
+    
+                // Initialize Price Slider only if library is loaded and elements exist
+                if (priceSliderElement && minPriceInput && maxPriceInput && typeof noUiSlider !== 'undefined') {
+                    generateHistogramBars(); // Generate histogram visuals
+                    noUiSlider.create(priceSliderElement, {
+                        start: [currentFilters.minPrice, currentFilters.maxPrice], // Initial values from state
+                        connect: true, // Connect the handles with a colored bar
+                        step: priceSliderConfig.step,
+                        range: {
+                            'min': priceSliderConfig.minRange,
+                            'max': priceSliderConfig.maxRange
+                        }
+                    });
+    
+                    // Update inputs and histogram when slider changes
+                    priceSliderElement.noUiSlider.on('update', function (values, handle) {
+                        let minValue = parseInt(values[0]);
+                        let maxValue = parseInt(values[1]);
+    
+                        // Update text inputs (read-only)
+                        minPriceInput.value = minValue.toLocaleString('en-IN');
+                        // Display 'Max+' if slider reaches the max value
+                        maxPriceInput.value = maxValue >= priceSliderConfig.maxRange
+                            ? `${maxValue.toLocaleString('en-IN')}+`
+                            : maxValue.toLocaleString('en-IN');
+    
+                        // Update filter state
+                        currentFilters.minPrice = minValue;
+                        currentFilters.maxPrice = maxValue;
+    
+                        // Update histogram visual
+                        updateHistogramColors(minValue, maxValue);
+                    });
+    
+                    // Initial histogram color update
+                    updateHistogramColors(currentFilters.minPrice, currentFilters.maxPrice);
+    
+                } else {
+                    console.warn("Price slider elements/library (noUiSlider) not found. Slider disabled.");
+                    // Optionally hide slider elements or show a message
+                }
+    
+                function openFiltersModal() {
+                     modalOverlay.classList.add('open');
+                     filtersModal.classList.add('open');
+                     document.body.style.overflow = 'hidden'; // Prevent background scroll
+                     syncAllFiltersUI(); // Ensure UI matches state when opened
+                }
+    
+                 function closeFiltersModal() {
+                     modalOverlay.classList.remove('open');
+                     filtersModal.classList.remove('open');
+                     document.body.style.overflow = ''; // Restore background scroll
+                 }
+    
+                 function syncCountersFromState() {
+                    if (!counterControls) return;
+                    counterControls.forEach(control => {
+                         const minusBtn = control.querySelector('.minus');
+                         const valueSpan = control.querySelector('.counter-value');
+                         if (!minusBtn || !valueSpan) return;
+    
+                         const target = minusBtn.dataset.target; // e.g., 'bedrooms', 'beds'
+                         const stateValue = currentFilters[target]; // Get value from filter state
+    
+                         // Update the temporary counter state used for display logic
+                         countersState[target] = (stateValue === 'any' ? 0 : Number(stateValue));
+                         let displayValue = countersState[target];
+    
+                         // Update display text (Any, 1, 2, ..., 8+)
+                         valueSpan.textContent = displayValue === 0 ? 'Any' : (displayValue >= 8 ? `${displayValue}+` : displayValue);
+    
+                         // Disable minus button if count is 0
+                         minusBtn.classList.toggle('disabled', displayValue === 0);
+                         // You might want to disable the plus button at 8+ if needed
+                         // const plusBtn = control.querySelector('.plus');
+                         // if (plusBtn) plusBtn.classList.toggle('disabled', displayValue >= 8);
+                     });
+                }
+    
+    
+                // Syncs the entire modal UI based on the currentFilters object
+                function syncAllFiltersUI() {
+                    // Sync Type of Place buttons
+                    typeOfPlaceBtns?.forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.value === currentFilters.type);
+                    });
+    
+                    // Sync Amenity and Booking Option Chips
+                    allChips?.forEach(chip => {
+                        const value = chip.dataset.value;
+                        const h3Element = chip.closest('.filter-section')?.querySelector('h3');
+                        const isAmenity = h3Element && h3Element.textContent === 'Amenities';
+    
+                        if (isAmenity) {
+                            chip.classList.toggle('selected', currentFilters.amenities.includes(value));
+                        } else { // Booking options (instant_book, etc.)
+                            chip.classList.toggle('selected', !!currentFilters[value]); // Use !! to convert truthy/falsy to boolean
+                        }
+                    });
+    
+                    // Sync Room/Bed/Bathroom Counters
+                    syncCountersFromState();
+    
+                    // Sync Price Slider (if it exists)
+                    if (priceSliderElement && priceSliderElement.noUiSlider) {
+                        priceSliderElement.noUiSlider.set([currentFilters.minPrice, currentFilters.maxPrice]);
+                    } else { // Fallback: update inputs directly if slider failed
+                        if (minPriceInput) minPriceInput.value = currentFilters.minPrice.toLocaleString('en-IN');
+                        if (maxPriceInput) {
+                             maxPriceInput.value = currentFilters.maxPrice >= priceSliderConfig.maxRange
+                             ? `${currentFilters.maxPrice.toLocaleString('en-IN')}+`
+                             : currentFilters.maxPrice.toLocaleString('en-IN');
+                         }
+                    }
+                     // Ensure histogram colors are also synced
+                     updateHistogramColors(currentFilters.minPrice, currentFilters.maxPrice);
+                }
+    
+                // Event Listeners for Modal
+                filtersButton.addEventListener('click', openFiltersModal);
+                if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeFiltersModal);
+                modalOverlay.addEventListener('click', closeFiltersModal); // Close on overlay click
+    
+                // Type of Place Selection
+                if (typeOfPlaceBtns) {
+                    typeOfPlaceBtns.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            typeOfPlaceBtns.forEach(b => b.classList.remove('active')); // Deselect others
+                            btn.classList.add('active'); // Select clicked
+                            currentFilters.type = btn.dataset.value; // Update state
+                            console.log("Selected Type:", currentFilters.type);
+                        });
+                    });
+                }
+    
+                // Chip Selection (Amenities & Booking Options)
+                if (allChips) {
+                    allChips.forEach(chip => {
+                        chip.addEventListener('click', () => {
+                            chip.classList.toggle('selected'); // Toggle visual state
+                            const value = chip.dataset.value;
+                            const h3Element = chip.closest('.filter-section')?.querySelector('h3');
+                            const isAmenity = h3Element && h3Element.textContent === 'Amenities';
+    
+                            if (isAmenity) {
+                                const index = currentFilters.amenities.indexOf(value);
+                                if (chip.classList.contains('selected') && index === -1) {
+                                    currentFilters.amenities.push(value); // Add if selected and not present
+                                } else if (!chip.classList.contains('selected') && index > -1) {
+                                    currentFilters.amenities.splice(index, 1); // Remove if deselected and present
+                                }
+                                console.log("Selected Amenities:", currentFilters.amenities);
+                            } else { // Booking options
+                                currentFilters[value] = chip.classList.contains('selected'); // Update boolean state
+                                 console.log("Booking Options Updated:", { instant_book: currentFilters.instant_book, self_checkin: currentFilters.self_checkin, allows_pets: currentFilters.allows_pets });
+                            }
+                        });
+                    });
+                }
+    
+                 // Counter Controls (Rooms, Beds, Bathrooms)
+                 if (counterControls) {
+                     counterControls.forEach(control => {
+                         const minusBtn = control.querySelector('.minus');
+                         const plusBtn = control.querySelector('.plus');
+                         const valueSpan = control.querySelector('.counter-value');
+    
+                         if (!minusBtn || !plusBtn || !valueSpan) return;
+    
+                         const target = minusBtn.dataset.target; // 'bedrooms', 'beds', 'bathrooms'
+    
+                         // Ensure initial state is defined if not already
+                         if (typeof countersState[target] === 'undefined') {
+                              const stateValue = currentFilters[target];
+                              countersState[target] = (stateValue === 'any' ? 0 : Number(stateValue));
+                          }
+    
+                          const updateCounterUIAndState = () => {
+                              if (!target || typeof countersState[target] === 'undefined') {
+                                  console.error(`DEBUG: Invalid target "${target}" or missing countersState.`);
+                                  return;
+                              }
+                              let displayValue = countersState[target];
+                              let textToDisplay = displayValue === 0 ? 'Any' : (displayValue >= 8 ? `8+` : displayValue); // Airbnb caps display at 8+
+    
+                               // Update the span text
+                              try {
+                                  valueSpan.textContent = textToDisplay;
+                              } catch (e) {
+                                  console.error(`Error setting textContent for ${target}:`, e);
+                              }
+    
+                              // Update button disabled state
+                              minusBtn.classList.toggle('disabled', displayValue === 0);
+                              // Optional: disable plus at 8
+                               plusBtn.classList.toggle('disabled', displayValue >= 8);
+    
+                              // Update the main filter state object
+                              currentFilters[target] = displayValue === 0 ? 'any' : displayValue;
+                               console.log(`Updated ${target}: ${currentFilters[target]}`);
+                          };
+    
+                         minusBtn.addEventListener('click', () => {
+                             if (countersState[target] > 0) {
+                                 countersState[target]--;
+                                 updateCounterUIAndState();
+                             }
+                         });
+    
+                         plusBtn.addEventListener('click', () => {
+                              // Stop increasing if already at 8 or more
+                             if (countersState[target] < 8) {
+                                  countersState[target]++;
+                                  updateCounterUIAndState();
+                              }
+                         });
+                     });
+                     // Initial sync after setting up listeners
+                     syncCountersFromState();
+                 } else {
+                     console.warn("Counter controls not found.");
+                 }
+    
+                // Clear All Button
+                if (clearAllBtn) {
+                    clearAllBtn.addEventListener('click', () => {
+                        currentFilters = { ...initialFilters }; // Reset state to initial
+                        syncAllFiltersUI(); // Update UI to match reset state
+                        console.log("Filters Cleared", currentFilters);
+                    });
+                }
+    
+                // Show Places Button
+                if (showPlacesBtn) {
+                    showPlacesBtn.addEventListener('click', () => {
+                        console.log("Applying Filters:", currentFilters);
+                        // TODO: Add actual filtering logic here based on currentFilters
+                        // This would involve hiding/showing .listing-card elements
+                        closeFiltersModal(); // Close modal after applying
+                    });
+                }
     
             } // End Filters Modal Logic Check
     
     
-            // --- Initial Setup ---
+            // --- START: Wishlist Logic (Integrated) ---
+    
+            const wishlistKey = 'airbnbWishlist';
+    
+            // Function to get the current wishlist from localStorage
+            function getWishlist() {
+                const storedWishlist = localStorage.getItem(wishlistKey);
+                try {
+                    // Return parsed array or an empty array if nothing is stored or parsing fails
+                    return storedWishlist ? JSON.parse(storedWishlist) : [];
+                } catch (e) {
+                    console.error("Error parsing wishlist from localStorage", e);
+                    return []; // Return empty array on error
+                }
+            }
+    
+            // Function to save the wishlist to localStorage
+            function saveWishlist(wishlistArray) {
+                localStorage.setItem(wishlistKey, JSON.stringify(wishlistArray));
+            }
+    
+            // Function to get a unique ID for a listing card (using first image src as example)
+            function getListingId(heartButton) {
+                const card = heartButton.closest('.listing-card');
+                if (!card) return null;
+                const firstImage = card.querySelector('.carousel-slide img');
+                // Using the image src as a simple unique ID for this static example.
+                // In a real app, use a proper data-id attribute like data-listing-id="123".
+                return firstImage ? firstImage.getAttribute('src') : null;
+            }
+    
+            // Function to update the visual state of a heart icon
+            function updateHeartVisualState(heartButton, isWishlisted) {
+                if (isWishlisted) {
+                    heartButton.classList.add('hearted');
+                    heartButton.textContent = '♥'; // Use filled heart
+                    heartButton.setAttribute('aria-label', 'Remove from wishlist');
+                } else {
+                    heartButton.classList.remove('hearted');
+                    heartButton.textContent = '♡'; // Use outline heart
+                    heartButton.setAttribute('aria-label', 'Add to wishlist');
+                }
+            }
+    
+            // Function to handle heart icon clicks
+            function handleWishlistToggle(event) {
+                const heartButton = event.currentTarget; // Get the button that was clicked
+                const listingId = getListingId(heartButton);
+    
+                if (!listingId) {
+                    console.warn("Could not determine listing ID for wishlist item.");
+                    return;
+                }
+    
+                let currentWishlist = getWishlist();
+                const isCurrentlyWishlisted = currentWishlist.includes(listingId);
+    
+                if (isCurrentlyWishlisted) {
+                    // Remove from wishlist
+                    currentWishlist = currentWishlist.filter(id => id !== listingId);
+                    updateHeartVisualState(heartButton, false);
+                    console.log(`Removed from wishlist: ${listingId.substring(listingId.lastIndexOf('/') + 1)}`); // Log filename only
+                } else {
+                    // Add to wishlist
+                    currentWishlist.push(listingId);
+                    updateHeartVisualState(heartButton, true);
+                    console.log(`Added to wishlist: ${listingId.substring(listingId.lastIndexOf('/') + 1)}`); // Log filename only
+                }
+    
+                // Save the updated wishlist
+                saveWishlist(currentWishlist);
+            }
+    
+            // Initialize all heart icons on page load
+            function initializeWishlistStates() {
+                const heartIcons = document.querySelectorAll('.listing-card .heart-icon');
+                const currentWishlist = getWishlist();
+    
+                heartIcons.forEach(icon => {
+                    const listingId = getListingId(icon);
+                    if (listingId) {
+                        const isWishlisted = currentWishlist.includes(listingId);
+                        updateHeartVisualState(icon, isWishlisted);
+                    }
+                    // Add the click listener regardless of initial state
+                    icon.addEventListener('click', handleWishlistToggle);
+                });
+                console.log('Initial wishlist loaded (IDs are image URLs in this example):', currentWishlist);
+            }
+    
+            // Call the wishlist initialization function
+            initializeWishlistStates();
+    
+            // --- END: Wishlist Logic (Integrated) ---
+            
+            function handleDirectionsClick(event) {
+            const button = event.currentTarget;
+            const card = button.closest('.listing-card');
+            if (!card) return;
+
+            const locationSpan = card.querySelector('.listing-location-rating .location');
+            if (!locationSpan) {
+                console.warn("Could not find location text for directions.");
+                return;
+            }
+
+            const locationText = locationSpan.textContent.trim(); // e.g., "Hua Hin, Thailand"
+
+            if (!locationText) {
+                 console.warn("Location text is empty.");
+                 return;
+            }
+
+            // URL-encode the location text for the Google Maps query
+            const encodedLocation = encodeURIComponent(locationText);
+
+            // Construct the Google Maps Directions URL (destination only)
+            // This will prompt the user for their starting point in Google Maps
+            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedLocation}`;
+
+            console.log(`Opening directions to: ${locationText}, URL: ${mapsUrl}`);
+
+            // Open the URL in a new tab
+            window.open(mapsUrl, '_blank');
+        }
+
+        // Add listeners to all directions buttons
+        const directionButtons = document.querySelectorAll('.listing-location-rating .directions-icon-btn'); // Updated selector
+        if (directionButtons.length > 0) {
+             console.log(`Found ${directionButtons.length} direction buttons. Adding listeners...`);
+             directionButtons.forEach(button => {
+                 button.addEventListener('click', handleDirectionsClick);
+             });
+        } else {
+            console.warn("No direction buttons found on the page.");
+        }
+    
+            // --- Initial Setup (Final check/update for elements like Tax Toggle) ---
             if (taxToggleContainer && taxToggleSwitch && taxToggleLabel) {
+                // This part ensures the initial price display matches the toggle state if not loaded from localStorage earlier
                 const initialToggleState = taxToggleSwitch.classList.contains('on');
-                updateToggleLabel(initialToggleState);
-                updatePrices(initialToggleState);
+                updateToggleLabel(initialToggleState); // Make sure label is correct
+                updatePrices(initialToggleState); // Make sure prices match initial state
             }
     
         }); // End DOMContentLoaded
