@@ -950,6 +950,45 @@
          .footer-bottom-right button:hover, .footer-bottom-right a:hover { text-decoration: underline; }
          /* Removed .icon-placeholder style */
 
+         /* --- Add these styles for Heartbeat Animation --- */
+
+         @keyframes dramaticHeartbeat { /* Changed name for clarity */
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            25% {
+                transform: scale(1.8); /* Pop out much bigger */
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(0.85); /* Dip below original size */
+                opacity: 1;
+            }
+            75% {
+                transform: scale(1.1); /* Smaller bounce back up */
+            }
+            100% {
+                transform: scale(1);   /* Return to normal */
+                opacity: 1;
+            }
+            }
+
+        /* Class to apply the animation */
+        .heart-pop {
+        animation-name: dramaticHeartbeat;
+        animation-duration: 0.5s;        /* Adjust speed as needed */
+        animation-timing-function: ease-in-out;
+        /* animation-fill-mode: forwards; /* Generally not needed if 100% state is scale(1) */
+        }
+
+        /* Ensure the base heart icon has a default transform state if needed */
+        .heart-icon {
+            /* ... your existing styles ... */
+            transform-origin: center center; /* Helps scaling look centered */
+        }
+
+/* --- End Heartbeat Animation Styles --- */
     </style>
 </head>
 <body>
@@ -1169,6 +1208,7 @@
                          <div class="carousel-dots"></div>
                      </div>
                      <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                     <span class="badge">Guest favourite</span>
                  </div>
                  <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Ko Samui, Thailand</span> <span class="rating"><span class="star">★</span> 4.99</span> 
                     <button class="directions-icon-btn" aria-label="Get directions">
@@ -1266,7 +1306,7 @@
                            <div class="carousel-dots"></div>
                        </div>
                        <button class="heart-icon" aria-label="Add to wishlist">♡</button>
-                       <span class="badge">Guest favourite</span>
+                       
                    </div>
                    <div class="listing-details"> <div class="listing-location-rating"> <span class="location">อำเภอถลาง, Thailand</span> <span class="rating"><span class="star">★</span> 4.88</span> 
                     <button class="directions-icon-btn" aria-label="Get directions">
@@ -1364,6 +1404,8 @@
                           <div class="carousel-dots"></div>
                       </div>
                       <button class="heart-icon" aria-label="Add to wishlist">♡</button>
+                      <span class="badge">Guest favourite</span>
+                      
                   </div>
                   <div class="listing-details"> <div class="listing-location-rating"> <span class="location">Siem Reap, Cambodia</span> <span class="rating"><span class="star">★</span> 4.85</span> 
                     <button class="directions-icon-btn" aria-label="Get directions">
@@ -1556,6 +1598,8 @@
             const navHomes = document.getElementById('nav-homes');
             const navExperiences = document.getElementById('nav-experiences');
             const searchBar = document.getElementById('search-bar');
+            const whereSection = searchBar?.querySelector('.where-section'); // Get the 'Where' section trigger
+            const whereDropdown = document.getElementById('where-dropdown-content'); // Get the dropdown content
             const categoryContainer = document.getElementById('category-filter-items'); // Still needed for category item clicks
             const taxToggleContainer = document.getElementById('tax-toggle-container');
             const taxToggleSwitch = document.getElementById('tax-toggle-switch');
@@ -2053,6 +2097,74 @@
     
             } // End Filters Modal Logic Check
     
+             // --- Where Search Dropdown Logic ---
+             if (whereSection && whereDropdown) {
+                 console.log('Setting up Where dropdown listener...'); // DEBUG
+    
+                 function openWhereDropdown() {
+                     // Close other potential dropdowns here if needed
+                     whereDropdown.classList.add('visible');
+                     whereSection.classList.add('active'); // Optional: Style the trigger
+                     // Add event listener to close when clicking outside
+                     document.addEventListener('click', handleClickOutsideWhere, true);
+                 }
+    
+                 function closeWhereDropdown() {
+                     whereDropdown.classList.remove('visible');
+                     whereSection.classList.remove('active'); // Optional: Style the trigger
+                      // Remove the listener when dropdown is closed
+                     document.removeEventListener('click', handleClickOutsideWhere, true);
+                 }
+    
+                 // Toggle dropdown on clicking the "Where" section
+                 whereSection.addEventListener('click', (event) => {
+                     console.log('Where section clicked!'); // DEBUG
+                     event.stopPropagation(); // Prevent click from immediately closing via handleClickOutside
+                     const isVisible = whereDropdown.classList.contains('visible');
+                     if (isVisible) {
+                         console.log("Dropdown is visible, closing..."); // DEBUG
+                         closeWhereDropdown();
+                     } else {
+                         console.log("Dropdown is hidden, opening..."); // DEBUG
+                         openWhereDropdown();
+                     }
+                 });
+    
+                 // Close dropdown if clicking outside of it
+                 function handleClickOutsideWhere(event) {
+                     // Check if the click was outside the dropdown AND outside the trigger section
+                     if (!whereDropdown.contains(event.target) && !whereSection.contains(event.target)) {
+                         console.log("Click outside detected, closing dropdown."); // DEBUG
+                         closeWhereDropdown();
+                     }
+                 }
+    
+                 // Handle clicks on suggested destinations (Example)
+                 whereDropdown.querySelectorAll('li a').forEach(link => {
+                     link.addEventListener('click', (event) => {
+                         event.preventDefault(); // Prevent default link navigation
+                         const destinationText = link.querySelector('.text-content strong').textContent;
+                         const whereSpan = whereSection.querySelector('span'); // The "Search destinations" span
+                         if (whereSpan) {
+                             whereSpan.textContent = destinationText; // Update the search bar text
+                             whereSpan.style.color = '#222'; // Make text black like user input
+                             whereSpan.style.fontWeight = '400';
+                             // Optionally update a label if structure changes:
+                              // const whereLabel = whereSection.querySelector('label');
+                              // if (whereLabel) whereLabel.textContent = "Location"; // Or similar
+                         }
+                         console.log("Selected Destination:", destinationText);
+                         // Update actual filter state here if needed:
+                         // currentFilters.location = destinationText;
+                         closeWhereDropdown(); // Close dropdown after selection
+                     });
+                 });
+    
+             } else {
+                 console.warn("Where section trigger or dropdown content not found."); // DEBUG
+             }
+             // --- END: Where Search Dropdown Logic ---
+    
     
             // --- START: Wishlist Logic (Integrated) ---
     
@@ -2062,11 +2174,10 @@
             function getWishlist() {
                 const storedWishlist = localStorage.getItem(wishlistKey);
                 try {
-                    // Return parsed array or an empty array if nothing is stored or parsing fails
                     return storedWishlist ? JSON.parse(storedWishlist) : [];
                 } catch (e) {
                     console.error("Error parsing wishlist from localStorage", e);
-                    return []; // Return empty array on error
+                    return [];
                 }
             }
     
@@ -2075,13 +2186,11 @@
                 localStorage.setItem(wishlistKey, JSON.stringify(wishlistArray));
             }
     
-            // Function to get a unique ID for a listing card (using first image src as example)
+            // Function to get a unique ID for a listing card
             function getListingId(heartButton) {
                 const card = heartButton.closest('.listing-card');
                 if (!card) return null;
                 const firstImage = card.querySelector('.carousel-slide img');
-                // Using the image src as a simple unique ID for this static example.
-                // In a real app, use a proper data-id attribute like data-listing-id="123".
                 return firstImage ? firstImage.getAttribute('src') : null;
             }
     
@@ -2089,18 +2198,18 @@
             function updateHeartVisualState(heartButton, isWishlisted) {
                 if (isWishlisted) {
                     heartButton.classList.add('hearted');
-                    heartButton.textContent = '♥'; // Use filled heart
+                    heartButton.textContent = '♥';
                     heartButton.setAttribute('aria-label', 'Remove from wishlist');
                 } else {
                     heartButton.classList.remove('hearted');
-                    heartButton.textContent = '♡'; // Use outline heart
+                    heartButton.textContent = '♡';
                     heartButton.setAttribute('aria-label', 'Add to wishlist');
                 }
             }
     
             // Function to handle heart icon clicks
             function handleWishlistToggle(event) {
-                const heartButton = event.currentTarget; // Get the button that was clicked
+                const heartButton = event.currentTarget;
                 const listingId = getListingId(heartButton);
     
                 if (!listingId) {
@@ -2115,17 +2224,31 @@
                     // Remove from wishlist
                     currentWishlist = currentWishlist.filter(id => id !== listingId);
                     updateHeartVisualState(heartButton, false);
-                    console.log(`Removed from wishlist: ${listingId.substring(listingId.lastIndexOf('/') + 1)}`); // Log filename only
+                    // Optional: remove animation class immediately if toggling off quickly
+                    heartButton.classList.remove('heart-pop'); // Add this line
+                    console.log(`Removed from wishlist: ${listingId.substring(listingId.lastIndexOf('/') + 1)}`);
                 } else {
                     // Add to wishlist
                     currentWishlist.push(listingId);
-                    updateHeartVisualState(heartButton, true);
-                    console.log(`Added to wishlist: ${listingId.substring(listingId.lastIndexOf('/') + 1)}`); // Log filename only
+                    updateHeartVisualState(heartButton, true); // Update visual first
+    
+                    // --- Add animation ---
+                    heartButton.classList.add('heart-pop'); // Apply the animation class
+    
+                    // --- Listener to remove class after animation ---
+                    // {once: true} ensures listener auto-removes after firing once
+                    heartButton.addEventListener('animationend', () => {
+                        heartButton.classList.remove('heart-pop');
+                    }, { once: true });
+                    // --- End animation additions ---
+    
+                    console.log(`Added to wishlist: ${listingId.substring(listingId.lastIndexOf('/') + 1)}`);
                 }
     
                 // Save the updated wishlist
                 saveWishlist(currentWishlist);
             }
+    
     
             // Initialize all heart icons on page load
             function initializeWishlistStates() {
@@ -2148,56 +2271,55 @@
             initializeWishlistStates();
     
             // --- END: Wishlist Logic (Integrated) ---
-            
+    
+    
+            // --- START: Directions Button Logic ---
+    
             function handleDirectionsClick(event) {
-            const button = event.currentTarget;
-            const card = button.closest('.listing-card');
-            if (!card) return;
-
-            const locationSpan = card.querySelector('.listing-location-rating .location');
-            if (!locationSpan) {
-                console.warn("Could not find location text for directions.");
-                return;
+                const button = event.currentTarget;
+                const card = button.closest('.listing-card');
+                if (!card) return;
+    
+                const locationSpan = card.querySelector('.listing-location-rating .location');
+                if (!locationSpan) {
+                    console.warn("Could not find location text for directions.");
+                    return;
+                }
+    
+                const locationText = locationSpan.textContent.trim();
+    
+                if (!locationText) {
+                     console.warn("Location text is empty.");
+                     return;
+                }
+    
+                const encodedLocation = encodeURIComponent(locationText);
+                const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedLocation}`;
+    
+                console.log(`Opening directions to: ${locationText}, URL: ${mapsUrl}`);
+                window.open(mapsUrl, '_blank');
             }
-
-            const locationText = locationSpan.textContent.trim(); // e.g., "Hua Hin, Thailand"
-
-            if (!locationText) {
-                 console.warn("Location text is empty.");
-                 return;
+    
+            // Add listeners to all directions buttons (Updated selector)
+            const directionButtons = document.querySelectorAll('.listing-location-rating .directions-icon-btn');
+            if (directionButtons.length > 0) {
+                 console.log(`Found ${directionButtons.length} direction buttons. Adding listeners...`);
+                 directionButtons.forEach(button => {
+                     button.addEventListener('click', handleDirectionsClick);
+                 });
+            } else {
+                console.warn("No direction buttons found on the page.");
             }
-
-            // URL-encode the location text for the Google Maps query
-            const encodedLocation = encodeURIComponent(locationText);
-
-            // Construct the Google Maps Directions URL (destination only)
-            // This will prompt the user for their starting point in Google Maps
-            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedLocation}`;
-
-            console.log(`Opening directions to: ${locationText}, URL: ${mapsUrl}`);
-
-            // Open the URL in a new tab
-            window.open(mapsUrl, '_blank');
-        }
-
-        // Add listeners to all directions buttons
-        const directionButtons = document.querySelectorAll('.listing-location-rating .directions-icon-btn'); // Updated selector
-        if (directionButtons.length > 0) {
-             console.log(`Found ${directionButtons.length} direction buttons. Adding listeners...`);
-             directionButtons.forEach(button => {
-                 button.addEventListener('click', handleDirectionsClick);
-             });
-        } else {
-            console.warn("No direction buttons found on the page.");
-        }
+            // --- END: Directions Button Logic ---
+    
     
             // --- Initial Setup (Final check/update for elements like Tax Toggle) ---
             if (taxToggleContainer && taxToggleSwitch && taxToggleLabel) {
-                // This part ensures the initial price display matches the toggle state if not loaded from localStorage earlier
                 const initialToggleState = taxToggleSwitch.classList.contains('on');
-                updateToggleLabel(initialToggleState); // Make sure label is correct
-                updatePrices(initialToggleState); // Make sure prices match initial state
+                updateToggleLabel(initialToggleState);
+                updatePrices(initialToggleState);
             }
+            console.log("Script finished setup."); // DEBUG
     
         }); // End DOMContentLoaded
     </script>
