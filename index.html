@@ -269,21 +269,39 @@
         .scroll-arrow:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
         .scroll-arrow.left { margin-right: 15px; }
         .scroll-arrow.right { margin-left: 15px; }
-        .category-filter-wrapper { flex-grow: 1; overflow: hidden; }
-        .category-filter { /* Your #category-filter-items element */
-            display: flex;
-            gap: 30px;
-            padding-bottom: 10px;
-            width: max-content;
-            overflow-x: auto; /* <<< ADD THIS LINE */
-
-            /* --- Add these rules to hide the scrollbar --- */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* Internet Explorer 10+ */
-        }
         .category-filter::-webkit-scrollbar {
             display: none;
         }
+
+        /* --- Category Filter Styles --- */
+        .category-filter-wrapper {
+            flex-grow: 1;
+            overflow: hidden; /* Keep this hidden */
+        }
+
+        .category-filter { /* Your #category-filter-items element */
+            display: flex;
+            gap: 38px; /* Or your preferred gap */
+            padding-bottom: 10px;
+            width: max-content;
+            /* REMOVE overflow-x: auto; if present */
+            /* REMOVE scrollbar hiding styles if they were on this element */
+
+            /* ADD Transition for smooth sliding */
+            transition: transform 0.4s ease-in-out;
+            transform: translateX(0); /* Start at position 0 */
+        }
+
+        /* Ensure arrow hiding style is present */
+        .scroll-arrow.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none; /* Prevent clicking hidden arrows */
+            cursor: default;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        /* --- End Category Filter Styles --- */
         .category-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding-bottom: 10px; border-bottom: 2px solid transparent; color: #717171; white-space: nowrap; transition: color 0.2s ease, border-bottom-color 0.2s ease, opacity 0.2s ease; opacity: 0.7; }
         .category-item svg {
             width: 24px;
@@ -1606,8 +1624,8 @@
             const listingPrices = document.querySelectorAll('.listing-price');
             const taxToggleLabel = document.getElementById('tax-toggle-label');
             const categoryWrapper = document.querySelector('.category-filter-wrapper'); // The element we will try to scroll now
-            const scrollLeftBtn = document.querySelector('.scroll-arrow.left');     // Category scroll left button
-            const scrollRightBtn = document.querySelector('.scroll-arrow.right');    // Category scroll right button
+            const scrollLeftBtn = document.querySelector('.filter-container .scroll-arrow.left');    // Category scroll left button
+            const scrollRightBtn = document.querySelector('.filter-container .scroll-arrow.right');   // Category scroll right button
             const filterContainer = document.getElementById('filter-container');
             const inspirationTabs = document.querySelectorAll('.inspiration-tabs button');
     
@@ -1802,24 +1820,91 @@
             }
     
     
-            // === Simplified Filter Arrow Scroll Logic ===
-            if (scrollLeftBtn && scrollRightBtn && categoryWrapper) {
-                const simpleScrollAmount = 300; // Pixels to scroll
-    
-                scrollLeftBtn.addEventListener('click', () => {
-                    categoryWrapper.scrollBy({ left: -simpleScrollAmount, behavior: 'smooth' });
-                });
-    
-                scrollRightBtn.addEventListener('click', () => {
-                    categoryWrapper.scrollBy({ left: simpleScrollAmount, behavior: 'smooth' });
-                });
-    
-                // No need to hide/show arrows in this simplified version
-                 scrollLeftBtn?.classList.remove('hidden');
-                 scrollRightBtn?.classList.remove('hidden');
-            } else {
-                console.warn("Could not find elements for simple arrow scrolling (wrapper/buttons).");
+        // === START: NEW Category Filter Paged Scrolling Logic ===
+        let currentCategoryScrollOffset = 0; // Track the current translateX offset
+
+        function updateCategoryArrowsVisibility() {
+            if (!categoryContainer || !categoryWrapper || !scrollLeftBtn || !scrollRightBtn) return;
+
+            // Calculate maximum scrollable distance
+            // scrollWidth is total width, offsetWidth is visible width
+            const maxScroll = categoryContainer.scrollWidth - categoryWrapper.offsetWidth;
+
+            // Hide left arrow if we are at the beginning (or very close)
+            scrollLeftBtn.classList.toggle('hidden', currentCategoryScrollOffset <= 0);
+
+            // Hide right arrow if we are at the end (or very close)
+            // Add a small tolerance (e.g., 1px) for potential rounding issues
+            scrollRightBtn.classList.toggle('hidden', currentCategoryScrollOffset >= maxScroll - 1);
+
+            // console.log(`Offset: ${currentCategoryScrollOffset}, MaxScroll: ${maxScroll}`); // DEBUG
+        }
+
+        function slideCategoryFilter(direction) {
+            if (!categoryContainer || !categoryWrapper) return;
+
+            // Calculate how much to scroll - e.g., 80% of the visible width
+            const scrollAmount = categoryWrapper.offsetWidth * 0.8;
+            const maxScroll = categoryContainer.scrollWidth - categoryWrapper.offsetWidth;
+            let targetOffset;
+
+            if (direction === 'right') {
+                targetOffset = currentCategoryScrollOffset + scrollAmount;
+                // Don't scroll beyond the maximum possible
+                targetOffset = Math.min(targetOffset, maxScroll);
+            } else { // direction === 'left'
+                targetOffset = currentCategoryScrollOffset - scrollAmount;
+                // Don't scroll beyond the beginning
+                targetOffset = Math.max(targetOffset, 0);
             }
+
+             // Only apply if the offset actually changes
+            if (targetOffset !== currentCategoryScrollOffset) {
+                currentCategoryScrollOffset = targetOffset;
+                // Apply the transform using translateX
+                categoryContainer.style.transform = `translateX(-${currentCategoryScrollOffset}px)`;
+                // Update which arrows should be visible after the scroll
+                updateCategoryArrowsVisibility();
+            }
+        }
+
+        // Initial setup if all elements exist
+        if (scrollLeftBtn && scrollRightBtn && categoryContainer && categoryWrapper) {
+            console.log("Setting up NEW paged category scroll logic.");
+
+            scrollLeftBtn.addEventListener('click', () => {
+                slideCategoryFilter('left');
+            });
+
+            scrollRightBtn.addEventListener('click', () => {
+                slideCategoryFilter('right');
+            });
+
+            // Call once initially to set correct arrow visibility
+            // Use setTimeout to allow layout to stabilize first
+            setTimeout(updateCategoryArrowsVisibility, 150);
+
+            // Optional: Update on window resize if layout changes significantly
+            window.addEventListener('resize', () => {
+                 // Recalculate maxScroll and potentially clamp current offset if needed
+                 const maxScroll = categoryContainer.scrollWidth - categoryWrapper.offsetWidth;
+                 currentCategoryScrollOffset = Math.min(currentCategoryScrollOffset, maxScroll);
+                 currentCategoryScrollOffset = Math.max(currentCategoryScrollOffset, 0);
+                 // Re-apply potentially clamped transform immediately (no transition needed here)
+                 categoryContainer.style.transition = 'none'; // Temporarily disable transition for instant adjustment
+                 categoryContainer.style.transform = `translateX(-${currentCategoryScrollOffset}px)`;
+                 // Force reflow might be needed in some complex cases before re-enabling transition
+                 // void categoryContainer.offsetWidth;
+                 setTimeout(() => { // Re-enable transition shortly after
+                     categoryContainer.style.transition = 'transform 0.4s ease-in-out';
+                     updateCategoryArrowsVisibility(); // Update arrows based on new state
+                 }, 50);
+            });
+
+        } else {
+            console.warn("Could not find all elements for NEW paged category scrolling.");
+        }
+        // === END: NEW Category Filter Paged Scrolling Logic ===
     
             // --- Filters Modal Logic ---
             if (filtersModal && modalOverlay && filtersButton) {
